@@ -4,16 +4,54 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Zap, TrendingUp, Smartphone } from 'lucide-react';
 import Image from 'next/image';
+import { FeatureCard } from '@/components/pages/landing/feature-card';
+import { title } from 'process';
+
+const features = {
+  one: {
+    title: "Recharge Your Meter Instantly",
+    description: "Recharge your prepaid meter anytime, anywhere. Our seamless interface makes it easy to top up your balance in just a few taps. Track every recharge and receive instant confirmation with your token details.",
+    imageSrc: "/feature-recharge.jpg",
+    featureList: [
+      "Quick recharge in seconds",
+      "Multiple payment methods",
+      "Instant token delivery"
+    ],
+    cta: "Start Recharging",
+    order: 'order-2',
+    icon: Zap,
+  },
+
+  two: {
+    title: "Manage Multiple Meters",
+    description: "Handle all your meters in one unified dashboard. Whether you have meters at home, business, or shop, manage them all with ease. Add, organize, and track multiple meters without any hassle.",
+    imageSrc: "/feature-meters.jpg",
+    featureList: [
+      "Centralized control hub",
+      "Easy meter organization",
+      "Real-time usage tracking"
+    ],
+    cta: "Add Your Meters",
+    order: 'order-2',
+    icon: Smartphone,
+  },
+
+  three: {
+    title: "Smart Appliance Cost Calculator",
+    description: "Know exactly how much your appliances cost to run. Calculate electricity expenses for your AC, refrigerator, TV, and more. Make informed decisions about energy usage and save money on your bills.",
+    
+  }
+}
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Navigation */}
-      <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <nav className="top-0 z-50 sticky bg-background/80 backdrop-blur-sm border-border border-b">
+        <div className="flex justify-between items-center mx-auto px-4 sm:px-6 lg:px-8 py-4 max-w-7xl">
           <div className="flex items-center gap-2 animate-fade-in">
             <Zap className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl text-foreground">MeterPay</span>
+            <span className="font-bold text-foreground text-xl">MeterPay</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login">
@@ -27,17 +65,17 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="py-16 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="items-center gap-12 grid lg:grid-cols-2">
             <div className="animate-fade-in-up">
-              <h1 className="text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance leading-tight">
+              <h1 className="mb-6 font-bold text-foreground text-5xl lg:text-6xl text-balance leading-tight">
                 Smart Meter Recharges, Made Simple
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl text-balance">
+              <p className="mb-8 max-w-2xl text-muted-foreground text-xl text-balance">
                 Manage your prepaid meters easily. Track usage, estimate appliance costs, and recharge in minutes with our intelligent platform.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex sm:flex-row flex-col gap-4">
                 <Link href="/signup">
                   <Button size="lg" className="gap-2 hover:scale-105 transition-transform">
                     Get Started
@@ -45,22 +83,22 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button size="lg" variant="outline" className="hover:scale-105 transition-transform bg-transparent">
+                  <Button size="lg" variant="outline" className="bg-transparent hover:scale-105 transition-transform">
                     Already Have an Account?
                   </Button>
                 </Link>
               </div>
             </div>
 
-            <div className="animate-fade-in-up animate-delay-100 flex justify-center">
+            <div className="flex justify-center animate-delay-100 animate-fade-in-up">
               <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-3xl animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl rounded-2xl animate-pulse" />
                 <Image
                   src="/meter-hero.jpg"
                   alt="Digital prepaid electricity meter"
                   width={400}
                   height={400}
-                  className="relative rounded-2xl shadow-2xl"
+                  className="relative shadow-2xl rounded-2xl"
                   priority
                 />
               </div>
@@ -69,128 +107,34 @@ export default function LandingPage() {
         </div>
 
         {/* Feature 1: Recharge */}
-        <div className="py-20 border-b border-border">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in-up animate-delay-200">
-              <h2 className="text-4xl font-bold text-foreground mb-6">Recharge Your Meter Instantly</h2>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Recharge your prepaid meter anytime, anywhere. Our seamless interface makes it easy to top up your balance in just a few taps. Track every recharge and receive instant confirmation with your token details.
-              </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-foreground">Quick recharge in seconds</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-foreground">Multiple payment methods</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-foreground">Instant token delivery</span>
-                </li>
-              </ul>
-              <Link href="/signup">
-                <Button size="lg" className="gap-2">
-                  Start Recharging
-                  <Zap className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="animate-fade-in-up animate-delay-300 flex justify-center">
-              <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl blur-3xl" />
-                <Image
-                  src="/feature-recharge.jpg"
-                  alt="Instant meter recharge interface"
-                  width={400}
-                  height={400}
-                  className="relative rounded-2xl shadow-xl"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <FeatureCard body={features.one} />
 
         {/* Feature 2: Multiple Meters */}
-        <div className="py-20 border-b border-border">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in-up animate-delay-300 flex justify-center order-2 lg:order-1">
-              <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl blur-3xl" />
-                <Image
-                  src="/feature-meters.jpg"
-                  alt="Multiple meter management dashboard"
-                  width={400}
-                  height={400}
-                  className="relative rounded-2xl shadow-xl"
-                />
-              </div>
-            </div>
-            <div className="animate-fade-in-up animate-delay-400 order-1 lg:order-2">
-              <h2 className="text-4xl font-bold text-foreground mb-6">Manage Multiple Meters</h2>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Handle all your meters in one unified dashboard. Whether you have meters at home, business, or shop, manage them all with ease. Add, organize, and track multiple meters without any hassle.
-              </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Smartphone className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-foreground">Centralized control hub</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Smartphone className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-foreground">Easy meter organization</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Smartphone className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-foreground">Real-time usage tracking</span>
-                </li>
-              </ul>
-              <Link href="/signup">
-                <Button size="lg" className="gap-2">
-                  Add Your Meters
-                  <Smartphone className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
+        <FeatureCard body={features.two} />
 
         {/* Feature 3: Smart Estimation */}
-        <div className="py-20 border-b border-border">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in-up animate-delay-500">
-              <h2 className="text-4xl font-bold text-foreground mb-6">Smart Appliance Cost Calculator</h2>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+        <div className="py-20 border-border border-b">
+          <div className="items-center gap-12 grid lg:grid-cols-2">
+            <div className="animate-delay-500 animate-fade-in-up">
+              <h2 className="mb-6 font-bold text-foreground text-4xl">Smart Appliance Cost Calculator</h2>
+              <p className="mb-8 text-muted-foreground text-lg leading-relaxed">
                 Know exactly how much your appliances cost to run. Calculate electricity expenses for your AC, refrigerator, TV, and more. Make informed decisions about energy usage and save money on your bills.
               </p>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="flex justify-center items-center bg-primary/20 rounded-full w-6 h-6">
                     <TrendingUp className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-foreground">Instant cost calculations</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="flex justify-center items-center bg-primary/20 rounded-full w-6 h-6">
                     <TrendingUp className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-foreground">Popular appliance presets</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="flex justify-center items-center bg-primary/20 rounded-full w-6 h-6">
                     <TrendingUp className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-foreground">Custom appliance support</span>
@@ -203,15 +147,15 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
-            <div className="animate-fade-in-up animate-delay-600 flex justify-center">
+            <div className="flex justify-center animate-delay-600 animate-fade-in-up">
               <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 blur-3xl rounded-2xl" />
                 <Image
                   src="/feature-estimation.jpg"
                   alt="Smart appliance cost calculator"
                   width={400}
                   height={400}
-                  className="relative rounded-2xl shadow-xl"
+                  className="relative shadow-xl rounded-2xl"
                 />
               </div>
             </div>
@@ -219,40 +163,40 @@ export default function LandingPage() {
         </div>
 
         {/* Feature 4: Token History */}
-        <div className="py-20 border-b border-border">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in-up animate-delay-600 flex justify-center order-2 lg:order-1">
+        <div className="py-20 border-border border-b">
+          <div className="items-center gap-12 grid lg:grid-cols-2">
+            <div className="flex justify-center order-2 lg:order-1 animate-delay-600 animate-fade-in-up">
               <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 blur-3xl rounded-2xl" />
                 <Image
                   src="/feature-history.jpg"
                   alt="Complete recharge history and token records"
                   width={400}
                   height={400}
-                  className="relative rounded-2xl shadow-xl"
+                  className="relative shadow-xl rounded-2xl"
                 />
               </div>
             </div>
-            <div className="animate-fade-in-up animate-delay-700 order-1 lg:order-2">
-              <h2 className="text-4xl font-bold text-foreground mb-6">Comprehensive Token History</h2>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+            <div className="order-1 lg:order-2 animate-delay-700 animate-fade-in-up">
+              <h2 className="mb-6 font-bold text-foreground text-4xl">Comprehensive Token History</h2>
+              <p className="mb-8 text-muted-foreground text-lg leading-relaxed">
                 Keep a complete record of all your recharges and tokens. View detailed transaction history with dates, amounts, tokens, and more. Never lose important payment information again.
               </p>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+                  <div className="flex justify-center items-center bg-accent/20 rounded-full w-6 h-6">
                     <Zap className="w-4 h-4 text-accent" />
                   </div>
                   <span className="text-foreground">Complete transaction logs</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+                  <div className="flex justify-center items-center bg-accent/20 rounded-full w-6 h-6">
                     <Zap className="w-4 h-4 text-accent" />
                   </div>
                   <span className="text-foreground">Easy token retrieval</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+                  <div className="flex justify-center items-center bg-accent/20 rounded-full w-6 h-6">
                     <Zap className="w-4 h-4 text-accent" />
                   </div>
                   <span className="text-foreground">Downloadable records</span>
@@ -269,9 +213,9 @@ export default function LandingPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="py-20 bg-gradient-to-r from-primary/5 to-accent/5 border border-border rounded-lg p-12 text-center mb-20 animate-fade-in-up animate-delay-500">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Ready to Take Control?</h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+        <div className="bg-gradient-to-r from-primary/5 to-accent/5 mb-20 p-12 py-20 border border-border rounded-lg text-center animate-delay-500 animate-fade-in-up">
+          <h2 className="mb-4 font-bold text-foreground text-3xl">Ready to Take Control?</h2>
+          <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
             Join thousands of users who are saving time and money with MeterPay.
           </p>
           <Link href="/signup">
@@ -284,8 +228,8 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
+      <footer className="bg-card py-8 border-border border-t">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl text-muted-foreground text-center">
           <p>&copy; 2024 MeterPay. All rights reserved.</p>
         </div>
       </footer>
