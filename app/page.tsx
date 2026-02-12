@@ -39,8 +39,30 @@ const features = {
   three: {
     title: "Smart Appliance Cost Calculator",
     description: "Know exactly how much your appliances cost to run. Calculate electricity expenses for your AC, refrigerator, TV, and more. Make informed decisions about energy usage and save money on your bills.",
-    
-  }
+    imageSrc: "/feature-estimation.jpg",
+    featureList: [
+      "Instant cost calculations",
+      "Popular appliance presets",
+      "Custom appliance support"
+    ],
+    cta: "Try Calculator",
+    order: 'order-2',
+    icon: TrendingUp,
+  },
+
+  four: {
+    title: "Comprehensive Token History",
+    description: "Keep a complete record of all your recharges and tokens. View detailed transaction history with dates, amounts, tokens, and more. Never lose important payment information again.",
+    imageSrc: "/feature-history.jpg",
+    featureList: [
+      "Complete transaction logs",
+      "Easy token retrieval",
+      "Downloadable records"
+    ],
+    cta: "View Your History",
+    order: 'order-2',
+    icon: Zap,
+  },
 }
 
 export default function LandingPage() {
@@ -54,10 +76,10 @@ export default function LandingPage() {
             <span className="font-bold text-foreground text-xl">MeterPay</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button variant="ghost">Login</Button>
             </Link>
-            <Link href="/signup">
+            <Link href="/auth/signup">
               <Button>Sign Up</Button>
             </Link>
           </div>
@@ -76,7 +98,7 @@ export default function LandingPage() {
                 Manage your prepaid meters easily. Track usage, estimate appliance costs, and recharge in minutes with our intelligent platform.
               </p>
               <div className="flex sm:flex-row flex-col gap-4">
-                <Link href="/signup">
+                <Link href="/auth/signup">
                   <Button size="lg" className="gap-2 hover:scale-105 transition-transform">
                     Get Started
                     <Zap className="w-4 h-4" />
@@ -113,104 +135,10 @@ export default function LandingPage() {
         <FeatureCard body={features.two} />
 
         {/* Feature 3: Smart Estimation */}
-        <div className="py-20 border-border border-b">
-          <div className="items-center gap-12 grid lg:grid-cols-2">
-            <div className="animate-delay-500 animate-fade-in-up">
-              <h2 className="mb-6 font-bold text-foreground text-4xl">Smart Appliance Cost Calculator</h2>
-              <p className="mb-8 text-muted-foreground text-lg leading-relaxed">
-                Know exactly how much your appliances cost to run. Calculate electricity expenses for your AC, refrigerator, TV, and more. Make informed decisions about energy usage and save money on your bills.
-              </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <div className="flex justify-center items-center bg-primary/20 rounded-full w-6 h-6">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-foreground">Instant cost calculations</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="flex justify-center items-center bg-primary/20 rounded-full w-6 h-6">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-foreground">Popular appliance presets</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="flex justify-center items-center bg-primary/20 rounded-full w-6 h-6">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-foreground">Custom appliance support</span>
-                </li>
-              </ul>
-              <Link href="/appliance-calculator">
-                <Button size="lg" className="gap-2">
-                  Try Calculator
-                  <TrendingUp className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="flex justify-center animate-delay-600 animate-fade-in-up">
-              <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 blur-3xl rounded-2xl" />
-                <Image
-                  src="/feature-estimation.jpg"
-                  alt="Smart appliance cost calculator"
-                  width={400}
-                  height={400}
-                  className="relative shadow-xl rounded-2xl"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <FeatureCard body={features.three} />
 
         {/* Feature 4: Token History */}
-        <div className="py-20 border-border border-b">
-          <div className="items-center gap-12 grid lg:grid-cols-2">
-            <div className="flex justify-center order-2 lg:order-1 animate-delay-600 animate-fade-in-up">
-              <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 blur-3xl rounded-2xl" />
-                <Image
-                  src="/feature-history.jpg"
-                  alt="Complete recharge history and token records"
-                  width={400}
-                  height={400}
-                  className="relative shadow-xl rounded-2xl"
-                />
-              </div>
-            </div>
-            <div className="order-1 lg:order-2 animate-delay-700 animate-fade-in-up">
-              <h2 className="mb-6 font-bold text-foreground text-4xl">Comprehensive Token History</h2>
-              <p className="mb-8 text-muted-foreground text-lg leading-relaxed">
-                Keep a complete record of all your recharges and tokens. View detailed transaction history with dates, amounts, tokens, and more. Never lose important payment information again.
-              </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <div className="flex justify-center items-center bg-accent/20 rounded-full w-6 h-6">
-                    <Zap className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-foreground">Complete transaction logs</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="flex justify-center items-center bg-accent/20 rounded-full w-6 h-6">
-                    <Zap className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-foreground">Easy token retrieval</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="flex justify-center items-center bg-accent/20 rounded-full w-6 h-6">
-                    <Zap className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-foreground">Downloadable records</span>
-                </li>
-              </ul>
-              <Link href="/signup">
-                <Button size="lg" className="gap-2">
-                  View Your History
-                  <Zap className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
+        <FeatureCard body={features.four} />
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-primary/5 to-accent/5 mb-20 p-12 py-20 border border-border rounded-lg text-center animate-delay-500 animate-fade-in-up">
@@ -218,7 +146,7 @@ export default function LandingPage() {
           <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
             Join thousands of users who are saving time and money with MeterPay.
           </p>
-          <Link href="/signup">
+          <Link href="/auth/signup">
             <Button size="lg" className="gap-2 hover:scale-105 transition-transform">
               Create Your Account
               <Zap className="w-4 h-4" />
@@ -230,7 +158,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-card py-8 border-border border-t">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl text-muted-foreground text-center">
-          <p>&copy; 2024 MeterPay. All rights reserved.</p>
+          <p>&copy; 2026 MeterPay. All rights reserved.</p>
         </div>
       </footer>
 

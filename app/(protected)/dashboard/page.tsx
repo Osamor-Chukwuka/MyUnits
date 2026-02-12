@@ -39,48 +39,29 @@ export default function Dashboard() {
   const totalRecharges = meters.reduce((sum, m) => sum + m.rechargeCount, 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Zap className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">MeterPay</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/appliance-calculator">
-              <Button variant="outline" size="sm">
-                Cost Calculator
-              </Button>
-            </Link>
-            <Button variant="outline" size="sm">
-              Profile
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="bg-background min-h-screen">
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Card className="p-6 border border-border bg-gradient-to-br from-primary/5 to-primary/10">
-            <p className="text-muted-foreground text-sm mb-2">Total Amount Recharged</p>
-            <p className="text-4xl font-bold text-foreground">₦{totalRecharged.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground mt-2">{totalRecharges} recharges total</p>
+        <div className="gap-6 grid md:grid-cols-2 mb-8">
+          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 border border-border">
+            <p className="mb-2 text-muted-foreground text-sm">Total Amount Recharged</p>
+            <p className="font-bold text-foreground text-4xl">₦{totalRecharged.toLocaleString()}</p>
+            <p className="mt-2 text-muted-foreground text-sm">{totalRecharges} recharges total</p>
           </Card>
 
-          <Card className="p-6 border border-border bg-gradient-to-br from-accent/5 to-accent/10">
-            <p className="text-muted-foreground text-sm mb-2">Active Meters</p>
-            <p className="text-4xl font-bold text-foreground">{meters.length}</p>
-            <p className="text-sm text-muted-foreground mt-2">Meters registered</p>
+          <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
+            <p className="mb-2 text-muted-foreground text-sm">Active Meters</p>
+            <p className="font-bold text-foreground text-4xl">{meters.length}</p>
+            <p className="mt-2 text-muted-foreground text-sm">Meters registered</p>
           </Card>
         </div>
 
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Your Meters</h2>
-            <p className="text-muted-foreground text-sm mt-1">Manage and recharge your prepaid meters</p>
+            <h2 className="font-bold text-foreground text-2xl">Your Meters</h2>
+            <p className="mt-1 text-muted-foreground text-sm">Manage and recharge your prepaid meters</p>
           </div>
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
@@ -91,9 +72,9 @@ export default function Dashboard() {
         {/* Meters List */}
         {meters.length === 0 ? (
           <Card className="p-12 border border-border border-dashed text-center">
-            <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No Meters Yet</h3>
-            <p className="text-muted-foreground mb-6">Add your first meter to get started</p>
+            <Zap className="opacity-50 mx-auto mb-4 w-12 h-12 text-muted-foreground" />
+            <h3 className="mb-2 font-semibold text-foreground text-lg">No Meters Yet</h3>
+            <p className="mb-6 text-muted-foreground">Add your first meter to get started</p>
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
               Add Your First Meter
@@ -102,10 +83,10 @@ export default function Dashboard() {
         ) : (
           <div className="flex flex-wrap gap-4">
             {meters.map((meter) => (
-              <Card key={meter.id} className="p-6 border border-border hover:border-primary/30 transition-colors flex-1 min-w-80">
+              <Card key={meter.id} className="flex-1 p-6 border border-border hover:border-primary/30 min-w-80 transition-colors">
                 <div className="flex flex-col h-full">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <div className="flex justify-center items-center bg-primary/10 rounded-lg w-10 h-10">
                       <Power className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -113,17 +94,17 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-6 flex-1">
-                    <div className="flex justify-between items-center py-2 border-b border-border">
-                      <span className="text-sm text-muted-foreground">Last Token</span>
+                  <div className="flex-1 space-y-3 mb-6">
+                    <div className="flex justify-between items-center py-2 border-border border-b">
+                      <span className="text-muted-foreground text-sm">Last Token</span>
                       <span className="font-semibold text-foreground text-sm">ID: 1234...7890</span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b border-border">
-                      <span className="text-sm text-muted-foreground">Token</span>
+                    <div className="flex justify-between items-center py-2 border-border border-b">
+                      <span className="text-muted-foreground text-sm">Token</span>
                       <span className="font-semibold text-foreground text-sm">₦{meter.totalRecharged.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-sm text-muted-foreground">Last Recharge</span>
+                      <span className="text-muted-foreground text-sm">Last Recharge</span>
                       <span className="font-semibold text-foreground text-sm">Jan 15, 2024</span>
                     </div>
                   </div>
@@ -138,7 +119,7 @@ export default function Dashboard() {
                     <Button variant="outline" size="sm" className="gap-2 bg-transparent">
                       <Zap className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive bg-transparent">
+                    <Button variant="outline" size="sm" className="bg-transparent text-destructive hover:text-destructive">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

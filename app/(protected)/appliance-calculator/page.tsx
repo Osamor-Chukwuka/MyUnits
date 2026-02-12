@@ -112,34 +112,19 @@ export default function ApplianceCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Appliance Cost Calculator</h1>
-            <p className="text-sm text-muted-foreground">Estimate your appliance energy usage and costs</p>
-          </div>
-        </div>
-      </header>
+    <div className="bg-background min-h-screen">
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
         {/* Calculator Card */}
-        <Card className="p-8 border border-border mb-8">
+        <Card className="mb-8 p-8 border border-border">
           <div className="space-y-8">
             {/* Step 1: Select Appliance */}
             <div>
-              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <h2 className="flex items-center gap-2 mb-4 font-semibold text-foreground text-lg">
                 <Lightbulb className="w-5 h-5 text-primary" />
                 Step 1: Select Appliance Type
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="gap-3 grid grid-cols-2 md:grid-cols-3">
                 {Object.entries(appliances).map(([key, appliance]) => (
                   <button
                     key={key}
@@ -159,14 +144,14 @@ export default function ApplianceCalculatorPage() {
             {/* Step 2: Power Rating */}
             {selectedAppliance && (
               <div>
-                <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <h2 className="flex items-center gap-2 mb-4 font-semibold text-foreground text-lg">
                   <Zap className="w-5 h-5 text-primary" />
                   Step 2: Power Rating (Watts)
                 </h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-foreground">Common Presets</label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <label className="block font-medium text-foreground text-sm">Common Presets</label>
+                    <div className="gap-2 grid grid-cols-2 md:grid-cols-3">
                       {appliances[selectedAppliance].presets.map((preset) => (
                         <button
                           key={preset.label}
@@ -178,14 +163,14 @@ export default function ApplianceCalculatorPage() {
                           }`}
                         >
                           {preset.label}
-                          <p className="text-xs opacity-70 mt-1">{preset.watts}W</p>
+                          <p className="opacity-70 mt-1 text-xs">{preset.watts}W</p>
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-foreground">Or Enter Custom Value</label>
+                    <label className="block font-medium text-foreground text-sm">Or Enter Custom Value</label>
                     <div className="flex gap-2">
                       <Input
                         type="number"
@@ -204,7 +189,7 @@ export default function ApplianceCalculatorPage() {
             {/* Step 3: Usage Hours */}
             {selectedAppliance && powerRating && (
               <div>
-                <h2 className="text-lg font-semibold text-foreground mb-4">Step 3: Daily Usage Hours</h2>
+                <h2 className="mb-4 font-semibold text-foreground text-lg">Step 3: Daily Usage Hours</h2>
                 <div className="space-y-2">
                   <Input
                     type="number"
@@ -215,7 +200,7 @@ export default function ApplianceCalculatorPage() {
                     max="24"
                     className="max-w-xs"
                   />
-                  <p className="text-sm text-muted-foreground">How many hours per day is this appliance used?</p>
+                  <p className="text-muted-foreground text-sm">How many hours per day is this appliance used?</p>
                 </div>
               </div>
             )}
@@ -225,7 +210,7 @@ export default function ApplianceCalculatorPage() {
               <Button
                 onClick={calculateCost}
                 size="lg"
-                className="w-full gap-2 md:w-auto"
+                className="gap-2 w-full md:w-auto"
               >
                 <Zap className="w-4 h-4" />
                 Calculate Cost
@@ -237,25 +222,25 @@ export default function ApplianceCalculatorPage() {
         {/* Results */}
         {result && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Estimation Results</h2>
+            <h2 className="font-bold text-foreground text-2xl">Estimation Results</h2>
 
             {/* Units Usage */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="p-6 border border-border bg-gradient-to-br from-primary/5 to-primary/10">
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <div className="gap-6 grid md:grid-cols-2">
+              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 border border-border">
+                <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
                   <Lightbulb className="w-5 h-5 text-primary" />
                   Units Usage (kWh)
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-border">
+                  <div className="flex justify-between items-center py-2 border-border border-b">
                     <span className="text-muted-foreground">Per Minute</span>
                     <span className="font-bold text-foreground">{result.perMinute.toFixed(4)} kWh</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border">
+                  <div className="flex justify-between items-center py-2 border-border border-b">
                     <span className="text-muted-foreground">Per Hour</span>
                     <span className="font-bold text-foreground">{result.perHour.toFixed(2)} kWh</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border">
+                  <div className="flex justify-between items-center py-2 border-border border-b">
                     <span className="text-muted-foreground">Per Day</span>
                     <span className="font-bold text-foreground">{result.perDay.toFixed(2)} kWh</span>
                   </div>
@@ -267,22 +252,22 @@ export default function ApplianceCalculatorPage() {
               </Card>
 
               {/* Cost Estimation */}
-              <Card className="p-6 border border-border bg-gradient-to-br from-accent/5 to-accent/10">
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
+                <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
                   <Zap className="w-5 h-5 text-accent" />
                   Estimated Cost (@ ₦{POWER_RATE_PER_KWH}/kWh)
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-border">
+                  <div className="flex justify-between items-center py-2 border-border border-b">
                     <span className="text-muted-foreground">Per Hour</span>
                     <span className="font-bold text-foreground">₦{result.costPerHour.toFixed(0)}</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border">
+                  <div className="flex justify-between items-center py-2 border-border border-b">
                     <span className="text-muted-foreground">Per Day</span>
                     <span className="font-bold text-foreground">₦{result.costPerDay.toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 text-lg">
-                    <span className="text-muted-foreground font-medium">Per Month</span>
+                    <span className="font-medium text-muted-foreground">Per Month</span>
                     <span className="font-bold text-foreground">₦{result.costPerMonth.toFixed(0)}</span>
                   </div>
                 </div>
@@ -290,8 +275,8 @@ export default function ApplianceCalculatorPage() {
             </div>
 
             {/* Info Card */}
-            <Card className="p-6 border border-border bg-secondary/30">
-              <p className="text-sm text-muted-foreground">
+            <Card className="bg-secondary/30 p-6 border border-border">
+              <p className="text-muted-foreground text-sm">
                 <span className="font-semibold text-foreground">Note:</span> This calculation is based on a standard rate
                 of ₦{POWER_RATE_PER_KWH} per kWh. Actual costs may vary depending on your distribution company and
                 tariff plan.

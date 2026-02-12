@@ -72,55 +72,40 @@ export default function MeterDetailPage({ params }: { params: { id: string } }) 
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{meterData.name}</h1>
-            <p className="text-sm text-muted-foreground">Meter #{meterData.meterNumber}</p>
-          </div>
-        </div>
-      </header>
+    <div className="bg-background min-h-screen">     
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {/* Quick Stats at Top */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6 border border-border bg-gradient-to-br from-primary/5 to-primary/10">
-            <p className="text-muted-foreground text-sm mb-2">Total Recharged</p>
-            <p className="text-3xl font-bold text-foreground">₦{meterData.totalRecharged.toLocaleString()}</p>
+        <div className="gap-6 grid md:grid-cols-3 mb-8">
+          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 border border-border">
+            <p className="mb-2 text-muted-foreground text-sm">Total Recharged</p>
+            <p className="font-bold text-foreground text-3xl">₦{meterData.totalRecharged.toLocaleString()}</p>
           </Card>
 
-          <Card className="p-6 border border-border bg-gradient-to-br from-accent/5 to-accent/10">
-            <p className="text-muted-foreground text-sm mb-2">Total Recharges</p>
-            <p className="text-3xl font-bold text-foreground">{meterData.rechargeCount}</p>
+          <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
+            <p className="mb-2 text-muted-foreground text-sm">Total Recharges</p>
+            <p className="font-bold text-foreground text-3xl">{meterData.rechargeCount}</p>
           </Card>
 
           <Card className="p-6 border border-border">
-            <p className="text-muted-foreground text-sm mb-2">Distribution Company</p>
-            <p className="text-2xl font-bold text-foreground">{meterData.disco}</p>
+            <p className="mb-2 text-muted-foreground text-sm">Distribution Company</p>
+            <p className="font-bold text-foreground text-2xl">{meterData.disco}</p>
           </Card>
         </div>
 
         {/* Monthly & Quick Stats */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="gap-6 grid md:grid-cols-2 mb-8">
           <Card className="p-6 border border-border">
-            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
               <Calendar className="w-5 h-5 text-primary" />
               Monthly Analytics
             </h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b border-border">
+              <div className="flex justify-between items-center py-2 border-border border-b">
                 <span className="text-muted-foreground">January 2024</span>
                 <span className="font-semibold text-foreground">₦23,000</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-border">
+              <div className="flex justify-between items-center py-2 border-border border-b">
                 <span className="text-muted-foreground">December 2023</span>
                 <span className="font-semibold text-foreground">₦27,000</span>
               </div>
@@ -128,12 +113,12 @@ export default function MeterDetailPage({ params }: { params: { id: string } }) 
           </Card>
 
           <Card className="p-6 border border-border">
-            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
               <Zap className="w-5 h-5 text-primary" />
               Quick Stats
             </h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b border-border">
+              <div className="flex justify-between items-center py-2 border-border border-b">
                 <span className="text-muted-foreground">Average Recharge</span>
                 <span className="font-semibold text-foreground">₦{Math.round(meterData.totalRecharged / meterData.rechargeCount).toLocaleString()}</span>
               </div>
@@ -146,16 +131,16 @@ export default function MeterDetailPage({ params }: { params: { id: string } }) 
         </div>
 
         {/* Recharge History Section */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Recharge History</h2>
-            <p className="text-muted-foreground text-sm mt-1">View all your recharges and tokens</p>
+            <h2 className="font-bold text-foreground text-2xl">Recharge History</h2>
+            <p className="mt-1 text-muted-foreground text-sm">View all your recharges and tokens</p>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="px-4 py-2 rounded-md border border-border bg-background text-foreground text-sm"
+              className="bg-background px-4 py-2 border border-border rounded-md text-foreground text-sm"
             >
               {months.map((month) => (
                 <option key={month.value} value={month.value}>
@@ -174,21 +159,21 @@ export default function MeterDetailPage({ params }: { params: { id: string } }) 
         <Card className="border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-secondary/50 border-b border-border">
+              <thead className="bg-secondary/50 border-border border-b">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
                     Units
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
                     Token
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-foreground uppercase tracking-wider">
+                  <th className="px-6 py-3 font-semibold text-foreground text-xs text-right uppercase tracking-wider">
                     Action
                   </th>
                 </tr>
@@ -196,21 +181,21 @@ export default function MeterDetailPage({ params }: { params: { id: string } }) 
               <tbody className="divide-y divide-border">
                 {recharges.map((recharge) => (
                   <tr key={recharge.id} className="hover:bg-secondary/30 transition-colors">
-                    <td className="px-6 py-4 text-sm text-foreground">
+                    <td className="px-6 py-4 text-foreground text-sm">
                       {new Date(recharge.date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
                       })}
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-foreground">
+                    <td className="px-6 py-4 font-semibold text-foreground text-sm">
                       ₦{recharge.amount.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-foreground flex items-center gap-2">
+                    <td className="flex items-center gap-2 px-6 py-4 text-foreground text-sm">
                       <ZapIcon className="w-4 h-4 text-primary" />
                       {recharge.units}
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{recharge.token}</td>
+                    <td className="px-6 py-4 font-mono text-muted-foreground text-sm">{recharge.token}</td>
                     <td className="px-6 py-4 text-right">
                       <Button variant="outline" size="sm">
                         Copy Token

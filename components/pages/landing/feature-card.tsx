@@ -38,7 +38,7 @@ export const FeatureCard = ({ body }: FeatureCardProps) => {
                             ))}
 
                         </ul>
-                        <Link href="/signup">
+                        <Link href="/auth/signup">
                             <Button size="lg" className="gap-2">
                                 {body.cta}
                                 <body.icon className="w-4 h-4" />
