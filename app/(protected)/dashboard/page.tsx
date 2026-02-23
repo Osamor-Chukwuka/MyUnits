@@ -5,23 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Zap, Plus, Power, Trash2, Eye } from 'lucide-react';
 import { useState } from 'react';
+import AddMeterModal from '@/components/pages/dashboard/add-meter-modal';
 
 interface Meter {
   id: string;
   name: string;
   meterNumber: string;
   disco: string;
+  meterType: string;
   totalRecharged: number;
   rechargeCount: number;
 }
 
 export default function Dashboard() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [meters, setMeters] = useState<Meter[]>([
     {
       id: '1',
       name: 'Home Meter',
       meterNumber: '123456789',
-      disco: 'EKEDC',
+      disco: 'ekedc',
+      meterType: 'prepaid',
       totalRecharged: 50000,
       rechargeCount: 5,
     },
@@ -29,22 +33,30 @@ export default function Dashboard() {
       id: '2',
       name: 'Office Meter',
       meterNumber: '987654321',
-      disco: 'IKEDC',
+      disco: 'ikedc',
+      meterType: 'prepaid',
       totalRecharged: 75000,
       rechargeCount: 8,
     },
   ]);
+
+  const handleRefreshMeterList = () => {
+   //just call the get meter action here to get the updated the list 
+
+   //close modal
+    setIsModalOpen(false);
+  };
 
   const totalRecharged = meters.reduce((sum, m) => sum + m.totalRecharged, 0);
   const totalRecharges = meters.reduce((sum, m) => sum + m.rechargeCount, 0);
 
   return (
     <div className="bg-background min-h-screen">
-
+    
       <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {/* Stats Cards */}
         <div className="gap-6 grid md:grid-cols-2 mb-8">
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 border border-border">
+          <Card className="p-6 border border-border">
             <p className="mb-2 text-muted-foreground text-sm">Total Amount Recharged</p>
             <p className="font-bold text-foreground text-4xl">₦{totalRecharged.toLocaleString()}</p>
             <p className="mt-2 text-muted-foreground text-sm">{totalRecharges} recharges total</p>
@@ -63,7 +75,7 @@ export default function Dashboard() {
             <h2 className="font-bold text-foreground text-2xl">Your Meters</h2>
             <p className="mt-1 text-muted-foreground text-sm">Manage and recharge your prepaid meters</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4" />
             Add Meter
           </Button>
@@ -75,7 +87,7 @@ export default function Dashboard() {
             <Zap className="opacity-50 mx-auto mb-4 w-12 h-12 text-muted-foreground" />
             <h3 className="mb-2 font-semibold text-foreground text-lg">No Meters Yet</h3>
             <p className="mb-6 text-muted-foreground">Add your first meter to get started</p>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
               <Plus className="w-4 h-4" />
               Add Your First Meter
             </Button>
@@ -129,6 +141,9 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      {/* Add Meter Modal */}
+      <AddMeterModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} refreshMeterList={handleRefreshMeterList} />
     </div>
   );
 }

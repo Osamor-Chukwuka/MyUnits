@@ -5,11 +5,30 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Zap } from 'lucide-react';
-import { useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { AuthActionState, loginAction } from '@/app/actions/auth-actions';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
+const initialState: AuthActionState = {
+  ok: false,
+}
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginState, handleLogin, pending] = useActionState(loginAction, initialState);
+  const router = useRouter();
+
+  //use effect to show toast on login success or error
+  useEffect(() => {
+    if (!loginState.message) return;
+
+    if (loginState.ok) {
+      router.replace('/dashboard');
+      toast.success(loginState.message);
+    } else {
+      toast.error(loginState.message);
+    }
+  }, [loginState])
 
   return (
     <div className="flex justify-center items-center bg-gradient-to-br from-background via-secondary to-background p-4 min-h-screen">
@@ -24,16 +43,17 @@ export default function LoginPage() {
         </div>
 
         <Card className="p-8 border border-border">
-          <form className="space-y-6">
+          <form className="space-y-6" action={handleLogin}>
             <div className="space-y-2">
               <label className="block font-medium text-foreground text-sm">Email</label>
               <Input
                 type="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name='email'
                 className="bg-input px-4 py-2 border border-border rounded-md"
+                defaultValue={loginState.values?.email ?? ''}
               />
+              {loginState.fieldErrors?.email && <p className="mt-1 text-red-500 text-sm">{loginState.fieldErrors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -41,10 +61,11 @@ export default function LoginPage() {
               <Input
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name='password'
                 className="bg-input px-4 py-2 border border-border rounded-md"
+                defaultValue={loginState.values?.password ?? ''}
               />
+              {loginState.fieldErrors?.password && <p className="mt-1 text-red-500 text-sm">{loginState.fieldErrors.password}</p>}
             </div>
 
             <div className="flex justify-between items-center text-sm">
@@ -57,9 +78,16 @@ export default function LoginPage() {
               </a>
             </div>
 
-            <Button type="submit" className="gap-2 w-full">
-              Sign In
-              <Zap className="w-4 h-4" />
+            {loginState.message && loginState.ok ?
+
+              <p className="text-green-500 text-center">{loginState.message}</p>
+              :
+              <p className="text-red-500 text-center">{loginState.message}</p>
+            }
+
+            <Button disabled={pending} type="submit" className="gap-2 w-full">
+              {pending ? 'Logging in...' : 'Login'}
+              <Zap className={`w-4 h-4 ${pending ? 'animate-spin' : ''}`} />
             </Button>
           </form>
 

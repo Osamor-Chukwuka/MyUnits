@@ -32,7 +32,7 @@ const features = {
       "Real-time usage tracking"
     ],
     cta: "Add Your Meters",
-    order: 'order-2',
+    order: null,
     icon: Smartphone,
   },
 
@@ -60,7 +60,7 @@ const features = {
       "Downloadable records"
     ],
     cta: "View Your History",
-    order: 'order-2',
+    order: null,
     icon: Zap,
   },
 }
@@ -101,10 +101,10 @@ export default function LandingPage() {
                 <Link href="/auth/signup">
                   <Button size="lg" className="gap-2 hover:scale-105 transition-transform">
                     Get Started
-                    <Zap className="w-4 h-4" />
+                    
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link href="/auth/login">
                   <Button size="lg" variant="outline" className="bg-transparent hover:scale-105 transition-transform">
                     Already Have an Account?
                   </Button>
@@ -149,7 +149,7 @@ export default function LandingPage() {
           <Link href="/auth/signup">
             <Button size="lg" className="gap-2 hover:scale-105 transition-transform">
               Create Your Account
-              <Zap className="w-4 h-4" />
+              
             </Button>
           </Link>
         </div>

@@ -60,6 +60,11 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
         password,
         options: {
             emailRedirectTo: `${process.env.APP_URL}/auth/callback`,
+            data: {
+                first_name,
+                last_name,
+                email,
+            }
         }
     })
 
@@ -86,6 +91,65 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
                 email,
                 password,
                 confirm_password
+            }
+    }
+}
+
+
+//login action
+export async function loginAction(prevState: AuthActionState, formData: FormData): Promise<AuthActionState>{
+
+    //extarct form data and validate
+    const email = String(formData.get('email') ?? '').trim().toLocaleLowerCase();
+    const password = String(formData.get('password') ?? '');
+
+    const fieldErrors: AuthActionState['fieldErrors'] = {};
+
+    if(!email){
+        fieldErrors.email = 'Email is required';
+    }else if (!isEmail(email)) {
+        fieldErrors.email = 'Enter a valid email address';
+    }
+
+    if (!password) fieldErrors.password = 'Password is required';
+
+    if(Object.keys(fieldErrors).length > 0){
+        return {
+            ok: false,
+            message: 'Please fix the errors above',
+            fieldErrors,
+            values: {
+                email,
+                password,
+            }
+        }
+    };
+
+    //start the main user creation logic
+    const supabase = await supabaseServer();
+    const {data, error} = await supabase.auth.signInWithPassword({
+        email,
+        password
+    })
+    
+
+    if(error){
+        return {
+            ok: false,
+            message: error.message || 'An error occurred during login',
+            values: {
+                email,
+                password,
+            }
+        }
+    }
+
+    return {
+        ok: true,
+        message: 'Login successful!',
+        values: {
+                email,
+                password,
             }
     }
 }

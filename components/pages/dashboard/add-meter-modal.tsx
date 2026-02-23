@@ -1,0 +1,267 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { X } from 'lucide-react';
+import { addMeterAction, fetchDiscos } from '@/app/actions/meter-actions';
+import { toast } from 'sonner';
+import { set } from 'react-hook-form';
+import { DiscoInterface, MeterFormData } from '@/types/meter-types';
+
+interface AddMeterModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  refreshMeterList: () => void;
+}
+
+
+export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: AddMeterModalProps) {
+  const [formData, setFormData] = useState<MeterFormData>({
+    name: '',
+    meterNumber: '',
+    disco: '',
+    meterType: '',
+  });
+  const [errors, setErrors] = useState<Partial<MeterFormData>>({});
+  const [submitMeterMessage, setSubmitMeterMessage] = useState<{ error?: string, success?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [discos, setDiscos] = useState<DiscoInterface[]>([]);
+
+  // call fetch discos action
+  useEffect(() => {
+    const loadDiscos = async () => {
+      try {
+        const data = await fetchDiscos();
+        console.log('Fetched distribution companies:', data);
+        setDiscos(data.content);
+      } catch (error: unknown) {
+        console.log('Error fetching distribution companies:', error);
+      }
+    }
+
+    loadDiscos();
+  }, []);
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<MeterFormData> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Meter name is required';
+    }
+    if (!formData.meterNumber.trim()) {
+      newErrors.meterNumber = 'Meter number is required';
+    }
+    if (!formData.disco) {
+      newErrors.disco = 'Please select a distribution company';
+    }
+
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      //reset errors and others
+      setErrors({});
+      setSubmitMeterMessage({});
+
+      //call the add meter action
+      await addMeterAction(formData);
+
+      toast.success('Meter added successfully!');
+      setSubmitMeterMessage({ success: 'Meter added successfully!' });
+      setTimeout(() => {
+        setSubmitMeterMessage({});
+      }, 2000);
+
+      refreshMeterList();
+
+      //reset formData
+      setFormData({
+        name: '',
+        meterNumber: '',
+        disco: '',
+        meterType: '',
+      });
+
+    } catch (error: unknown) {
+      setSubmitMeterMessage({ error: (error as Error)?.message || 'Failed to add meter. Please try again.' });
+      toast.error((error as Error)?.message || 'Failed to add meter. Please try again.');
+    }
+    finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field when user starts typing
+    if (errors[name as keyof MeterFormData]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/50 p-4">
+      <Card className="bg-card border border-border w-full max-w-md">
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 border-border border-b">
+          <h2 className="font-bold text-foreground text-2xl">Add New Meter</h2>
+          <button
+            onClick={onClose}
+            className="hover:bg-secondary p-1 rounded-lg transition-colors"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5 px-6 pb-6">
+          {/* Meter Name */}
+          <div>
+            <label htmlFor="name" className="block mb-2 font-semibold text-foreground text-sm">
+              Meter Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="e.g., Home Meter, Shop Meter"
+              className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.name ? 'border-destructive' : 'border-border'
+                }`}
+            />
+            {errors.name && <p className="mt-1 text-destructive text-sm">{errors.name}</p>}
+          </div>
+
+          {/* Meter Number */}
+          <div>
+            <label htmlFor="meterNumber" className="block mb-2 font-semibold text-foreground text-sm">
+              Meter Number
+            </label>
+            <input
+              type="text"
+              id="meterNumber"
+              name="meterNumber"
+              value={formData.meterNumber}
+              onChange={handleInputChange}
+              placeholder="Enter your meter number"
+              className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.meterNumber ? 'border-destructive' : 'border-border'
+                }`}
+            />
+            {errors.meterNumber && <p className="mt-1 text-destructive text-sm">{errors.meterNumber}</p>}
+          </div>
+
+          {/* Distribution Company */}
+          <div>
+            <label htmlFor="disco" className="block mb-2 font-semibold text-foreground text-sm">
+              Distribution Company
+            </label>
+            <select
+              id="disco"
+              name="disco"
+              value={formData.disco}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.disco ? 'border-destructive' : 'border-border'
+                }`}
+            >
+              <option value="">Select a distribution company</option>
+              {discos.map((option) => (
+                <option key={option.serviceID} value={option.serviceID}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+            {errors.disco && <p className="mt-1 text-destructive text-sm">{errors.disco}</p>}
+          </div>
+
+          {/* meter type */}
+          <div>
+            <label className="block mb-2 font-semibold text-foreground text-sm">
+              Meter Type
+            </label>
+
+            <div className="gap-4 grid grid-cols-2">
+              {["prepaid", "postpaid"].map((type) => (
+                <label
+                  key={type}
+                  className={`cursor-pointer rounded-lg border px-4 py-3 text-sm font-medium text-center transition-all
+                    ${formData.meterType === type
+                      ? "border-red-600 ring-2 ring-red-600/30 bg-red-50 text-red-700"
+                      : "border-border hover:border-red-400"
+                    }`}
+                >
+                  <input
+                    type="radio"
+                    name="meterType"
+                    value={type}
+                    checked={formData.meterType === type}
+                    onChange={handleInputChange}
+                    className="hidden"
+                  />
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </label>
+              ))}
+            </div>
+
+            {errors.meterType && (
+              <p className="pt-5 text-destructive text-sm text-center">
+                {errors.meterType}
+              </p>
+            )}
+
+            {submitMeterMessage.error && (
+              <p className="pt-5 text-destructive text-sm text-center">
+                {submitMeterMessage.error}
+              </p>
+            )}
+
+            {submitMeterMessage.success && (
+              <p className="pt-5 text-green-600 text-sm text-center">
+                {submitMeterMessage.success}
+              </p>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 bg-transparent"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? 'Adding...' : 'Add Meter'}
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </div>
+  );
+}
