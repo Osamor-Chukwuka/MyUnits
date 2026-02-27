@@ -4,73 +4,96 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Zap, Plus, Power, Trash2, Eye } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddMeterModal from '@/components/pages/dashboard/add-meter-modal';
+import { TotalsSkeleton, ActiveMetersSkeleton } from './skeletons/TotalsSkeleton';
+import MetersSkeleton from './skeletons/MetersSkeleton';
+import { getTotalRecharged, getUserMeters } from '@/app/actions/meter-actions';
+import { toast } from 'sonner';
+import { MeterInterface } from '@/types/meter-types';
 
-interface Meter {
-  id: string;
-  name: string;
-  meterNumber: string;
-  disco: string;
-  meterType: string;
-  totalRecharged: number;
-  rechargeCount: number;
-}
 
 export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [meters, setMeters] = useState<Meter[]>([
-    {
-      id: '1',
-      name: 'Home Meter',
-      meterNumber: '123456789',
-      disco: 'ekedc',
-      meterType: 'prepaid',
-      totalRecharged: 50000,
-      rechargeCount: 5,
-    },
-    {
-      id: '2',
-      name: 'Office Meter',
-      meterNumber: '987654321',
-      disco: 'ikedc',
-      meterType: 'prepaid',
-      totalRecharged: 75000,
-      rechargeCount: 8,
-    },
-  ]);
+  const [totalRecharged, setTotalRecharged] = useState(0);
+  const [totalRecharges, setTotalRecharges] = useState(0);
+  const [meters, setMeters] = useState<MeterInterface[]>([]);
+  const [meterCount, setMeterCount] = useState(0);
+  const [loadingTotals, setLoadingTotals] = useState(true);
+  const [loadingMeters, setLoadingMeters] = useState(true);
+
+  //fetch total recharged amount and count for all meters
+  const fetchTotalRecharged = async () => {
+    setLoadingTotals(true);
+    try {
+      const { totalAmount, totalCount } = await getTotalRecharged();
+      setTotalRecharged(totalAmount);
+      setTotalRecharges(totalCount);
+    } catch (error) {
+      toast.error('Failed to fetch total recharged amount');
+      console.error('Error fetching total recharged amount:', error);
+    } finally {
+      setLoadingTotals(false);
+    }
+  };
+
+  //fetch user meters
+  const fetchUserMeters = async () => {
+    setLoadingMeters(true);
+    try {
+      //call get meters action here and set the meters state with the result
+      const { meters, count } = await getUserMeters();
+      setMeters(meters);
+      setMeterCount(count);
+    } catch (error) {
+      toast.error('Failed to fetch meters');
+      console.error('Error fetching meters:', error);
+    } finally {
+      setLoadingMeters(false);
+    }
+  }
 
   const handleRefreshMeterList = () => {
-   //just call the get meter action here to get the updated the list 
-
-   //close modal
+    //just call the fetch meter function here to get the updated the list 
+    fetchUserMeters();
+    //close modal
     setIsModalOpen(false);
   };
 
-  const totalRecharged = meters.reduce((sum, m) => sum + m.totalRecharged, 0);
-  const totalRecharges = meters.reduce((sum, m) => sum + m.rechargeCount, 0);
+  useEffect(() => {
+    fetchTotalRecharged();
+    fetchUserMeters();
+  }, []);
 
   return (
     <div className="bg-background min-h-screen">
-    
+
       <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {/* Stats Cards */}
         <div className="gap-6 grid md:grid-cols-2 mb-8">
-          <Card className="p-6 border border-border">
-            <p className="mb-2 text-muted-foreground text-sm">Total Amount Recharged</p>
-            <p className="font-bold text-foreground text-4xl">₦{totalRecharged.toLocaleString()}</p>
-            <p className="mt-2 text-muted-foreground text-sm">{totalRecharges} recharges total</p>
-          </Card>
+          {loadingTotals ? (
+            <TotalsSkeleton />
+          ) : (
+            <Card className="p-6 border border-border">
+              <p className="mb-2 text-muted-foreground text-sm">Total Amount Recharged</p>
+              <p className="font-bold text-foreground text-4xl">₦{totalRecharged.toLocaleString()}</p>
+              <p className="mt-2 text-muted-foreground text-sm">{totalRecharges} recharges total</p>
+            </Card>
+          )}
 
-          <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
-            <p className="mb-2 text-muted-foreground text-sm">Active Meters</p>
-            <p className="font-bold text-foreground text-4xl">{meters.length}</p>
-            <p className="mt-2 text-muted-foreground text-sm">Meters registered</p>
-          </Card>
+          {loadingMeters ? (
+            <ActiveMetersSkeleton />
+          ) : (
+            <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
+              <p className="mb-2 text-muted-foreground text-sm">Active Meters</p>
+              <p className="font-bold text-foreground text-4xl">{meterCount}</p>
+              <p className="mt-2 text-muted-foreground text-sm">Meters registered</p>
+            </Card>
+          )}
         </div>
 
         {/* Section Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 pt-9">
           <div>
             <h2 className="font-bold text-foreground text-2xl">Your Meters</h2>
             <p className="mt-1 text-muted-foreground text-sm">Manage and recharge your prepaid meters</p>
@@ -82,7 +105,9 @@ export default function Dashboard() {
         </div>
 
         {/* Meters List */}
-        {meters.length === 0 ? (
+        {loadingMeters ? (
+          <MetersSkeleton />
+        ) : meters.length === 0 ? (
           <Card className="p-12 border border-border border-dashed text-center">
             <Zap className="opacity-50 mx-auto mb-4 w-12 h-12 text-muted-foreground" />
             <h3 className="mb-2 font-semibold text-foreground text-lg">No Meters Yet</h3>
@@ -93,9 +118,9 @@ export default function Dashboard() {
             </Button>
           </Card>
         ) : (
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 w-full">
             {meters.map((meter) => (
-              <Card key={meter.id} className="flex-1 p-6 border border-border hover:border-primary/30 min-w-80 transition-colors">
+              <Card key={meter.id} className="flex p-6 border border-border hover:border-primary/30 min-w-9/28 transition-colors">
                 <div className="flex flex-col h-full">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex justify-center items-center bg-primary/10 rounded-lg w-10 h-10">
@@ -108,16 +133,16 @@ export default function Dashboard() {
 
                   <div className="flex-1 space-y-3 mb-6">
                     <div className="flex justify-between items-center py-2 border-border border-b">
-                      <span className="text-muted-foreground text-sm">Last Token</span>
-                      <span className="font-semibold text-foreground text-sm">ID: 1234...7890</span>
+                      <span className="text-muted-foreground text-sm">Meter Number</span>
+                      <span className="font-semibold text-sm">{meter.meter_number}</span>
                     </div>
                     <div className="flex justify-between items-center py-2 border-border border-b">
-                      <span className="text-muted-foreground text-sm">Token</span>
-                      <span className="font-semibold text-foreground text-sm">₦{meter.totalRecharged.toLocaleString()}</span>
+                      <span className="text-muted-foreground text-sm">Disco</span>
+                      <span className="font-semibold text-foreground text-sm">{meter.disco}</span>
                     </div>
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-muted-foreground text-sm">Last Recharge</span>
-                      <span className="font-semibold text-foreground text-sm">Jan 15, 2024</span>
+                      <span className="text-muted-foreground text-sm">Type</span>
+                      <span className="font-semibold text-foreground text-sm">{meter.type}</span>
                     </div>
                   </div>
 

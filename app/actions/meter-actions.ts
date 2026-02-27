@@ -1,7 +1,7 @@
 'use server';
 
 import { supabaseServer } from "@/lib/supabase/server";
-import { MeterFormData } from "@/types/meter-types";
+import { MeterFormData, MeterInterface } from "@/types/meter-types";
 
 //define vtPass base url
 const baseUrl = 'https://sandbox.vtpass.com/api' //sandbox url
@@ -58,4 +58,43 @@ export async function addMeterAction(formData: MeterFormData) {
     }
 
     return;
+}
+
+
+//get total recharged action
+export async function getTotalRecharged(meterId?: string): Promise<{ totalAmount: number, totalCount: number }> {
+    const supabase = await supabaseServer();
+
+    const { data, error } = await supabase.rpc('get_recharge_totals', {
+        p_meter_id: meterId ?? null,
+    });
+
+    if (error) throw new Error(error.message);
+
+    const row = data?.[0];
+
+    console.log('RPC result:', row);
+
+    return {
+        totalAmount: Number(row?.total_amount ?? 0),
+        totalCount: Number(row?.total_count ?? 0),
+    };
+}
+
+
+//get all user meters
+export async function getUserMeters(): Promise<{ meters: MeterInterface[]; count: number }> {
+    const supabase = await supabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, count, error } = await supabase
+        .from('meters')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return { meters: (data ?? []) as MeterInterface[], count: count ?? 0 };
 }

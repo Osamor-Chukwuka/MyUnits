@@ -13,3 +13,13 @@ export interface DiscoInterface {
   maximum_amount: string;
   product_type: string;
 }
+
+export interface MeterInterface {
+  id: string;
+  user_id: string;
+  name: string;
+  meter_number: string;
+  disco: string;
+  type: string;
+  created_at: number;
+}

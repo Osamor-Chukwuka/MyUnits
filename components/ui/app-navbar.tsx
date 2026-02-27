@@ -3,20 +3,22 @@
 import Link from 'next/link';
 import { redirect, usePathname } from 'next/navigation';
 import { Zap, Menu, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { logoutAction } from '@/app/actions/auth-actions';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 type NavItem = { label: string; href: string };
 
-export default function AppNavbar({ brand = 'MyUnits', }: { brand?: string; }) {
+export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?: string; userFirstName?: string }) {
 
     const router = useRouter();
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
 
     const navItems: NavItem[] = useMemo(
         () => [
@@ -79,13 +81,41 @@ export default function AppNavbar({ brand = 'MyUnits', }: { brand?: string; }) {
                             </Link>
                         ))}
 
-                        <button
-                            onClick={handleLogout}
-                            className="font-medium text-muted-foreground hover:text-foreground text-sm transition-colors cursor-pointer"
-                        >
-                            Logout
-                        </button>
+                        {/* Logout moved into avatar dropdown */}
                     </nav>
+
+                    {/* profile icon and name with dropdown */}
+                    <div className="hidden relative md:flex items-center ml-4">
+                        <button
+                            type="button"
+                            onClick={() => setProfileOpen((v) => !v)}
+                            className="flex flex-col items-center focus:outline-none cursor-pointer"
+                            aria-expanded={profileOpen}
+                        >
+                            <Avatar>
+                                <AvatarFallback>
+                                    {userFirstName ? userFirstName.charAt(0).toUpperCase() : ''}
+                                </AvatarFallback>
+                            </Avatar>
+                            <span className="mt-1 text-xs capitalize">
+                                {userFirstName}
+                            </span>
+                        </button>
+
+                        {profileOpen && (
+                            <div className="top-15 -right-16 absolute bg-card shadow-md mt-2 p-1 border border-border rounded-md w-40">
+                                <button
+                                    onClick={() => {
+                                        setProfileOpen(false);
+                                        handleLogout();
+                                    }}
+                                    className="hover:bg-muted px-3 py-2 rounded w-full font-medium text-muted-foreground hover:text-foreground text-sm text-left cursor-pointer"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Mobile menu button */}
                     <Button
@@ -104,6 +134,17 @@ export default function AppNavbar({ brand = 'MyUnits', }: { brand?: string; }) {
                 {/* Mobile nav panel */}
                 {open && (
                     <div className="md:hidden mt-4 pt-4 border-border border-t">
+                        {/* mobile profile preview */}
+                        <div className="flex flex-col items-center mb-4">
+                            <Avatar>
+                                <AvatarFallback>
+                                    {userFirstName ? userFirstName.charAt(0).toUpperCase() : ''}
+                                </AvatarFallback>
+                            </Avatar>
+                            <span className="mt-1 text-xs capitalize">
+                                {userFirstName}
+                            </span>
+                        </div>
                         <nav className="flex flex-col gap-3">
                             {navItems.map((item) => (
                                 <Link
