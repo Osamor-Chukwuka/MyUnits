@@ -8,9 +8,11 @@ import { useEffect, useState } from 'react';
 import AddMeterModal from '@/components/pages/dashboard/add-meter-modal';
 import { TotalsSkeleton, ActiveMetersSkeleton } from './skeletons/TotalsSkeleton';
 import MetersSkeleton from './skeletons/MetersSkeleton';
-import { getTotalRecharged, getUserMeters } from '@/app/actions/meter-actions';
+import { deleteMeter, getTotalRecharged, getUserMeters } from '@/app/actions/meter-actions';
 import { toast } from 'sonner';
 import { MeterInterface } from '@/types/meter-types';
+
+import DeleteMeterModal from '@/components/pages/dashboard/delete-meter-modal';
 
 
 export default function Dashboard() {
@@ -21,6 +23,27 @@ export default function Dashboard() {
   const [meterCount, setMeterCount] = useState(0);
   const [loadingTotals, setLoadingTotals] = useState(true);
   const [loadingMeters, setLoadingMeters] = useState(true);
+  // Delete modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedMeter, setSelectedMeter] = useState<MeterInterface | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // handle delete meter
+  const handleDelete = async (meter: MeterInterface) => {
+    setDeleting(true);
+    try {
+      await deleteMeter(meter.id);
+      toast.success('Meter deleted successfully');
+      fetchUserMeters(); //fetch updated meter list after deletion
+      setIsDeleteModalOpen(false);
+      setSelectedMeter(null);
+    } catch (error) {
+      toast.error('Failed to delete meter');
+      console.error('Error deleting meter:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   //fetch total recharged amount and count for all meters
   const fetchTotalRecharged = async () => {
@@ -84,7 +107,7 @@ export default function Dashboard() {
           {loadingMeters ? (
             <ActiveMetersSkeleton />
           ) : (
-            <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
+            <Card className="bg-linear-to-br from-accent/5 to-accent/10 p-6 border border-border">
               <p className="mb-2 text-muted-foreground text-sm">Active Meters</p>
               <p className="font-bold text-foreground text-4xl">{meterCount}</p>
               <p className="mt-2 text-muted-foreground text-sm">Meters registered</p>
@@ -156,7 +179,15 @@ export default function Dashboard() {
                     <Button variant="outline" size="sm" className="gap-2 bg-transparent">
                       <Zap className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="bg-transparent text-destructive hover:text-destructive">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-transparent text-destructive hover:text-destructive"
+                      onClick={() => {
+                        setSelectedMeter(meter);
+                        setIsDeleteModalOpen(true);
+                      }}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -169,6 +200,17 @@ export default function Dashboard() {
 
       {/* Add Meter Modal */}
       <AddMeterModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} refreshMeterList={handleRefreshMeterList} />
+
+      {/* Delete Meter Modal */}
+      <DeleteMeterModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => { if (!deleting) { setIsDeleteModalOpen(false); setSelectedMeter(null); } }}
+        onConfirm={() => {
+          if (selectedMeter && !deleting) handleDelete(selectedMeter);
+        }}
+        meterName={selectedMeter?.name}
+        loading={deleting}
+      />
     </div>
   );
 }

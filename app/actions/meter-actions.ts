@@ -61,7 +61,7 @@ export async function addMeterAction(formData: MeterFormData) {
 }
 
 
-//get total recharged action
+//get total recharged
 export async function getTotalRecharged(meterId?: string): Promise<{ totalAmount: number, totalCount: number }> {
     const supabase = await supabaseServer();
 
@@ -97,4 +97,16 @@ export async function getUserMeters(): Promise<{ meters: MeterInterface[]; count
     if (error) throw new Error(error.message);
 
     return { meters: (data ?? []) as MeterInterface[], count: count ?? 0 };
+}
+
+
+//delete meter 
+export async function deleteMeter(meterId: string){
+    const supabase = await supabaseServer();
+
+    const { error } = await supabase.from('meters').delete().eq('id', meterId);
+
+    if (error) throw new Error(error.message);
+
+    return;
 }
