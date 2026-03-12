@@ -110,3 +110,56 @@ export async function deleteMeter(meterId: string){
 
     return;
 }
+
+
+// get monthly analytics for a meter
+// In meter-actions.ts
+export async function getMonthlyAnalytics(meterId: string): Promise<[Record<string, number>, { amount: string, created_at: string }]> {
+  const supabase = await supabaseServer();
+
+  const { data, error } = await supabase
+    .from('recharges')
+    .select('amount, created_at')
+    .eq('meter_id', meterId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  console.log("here here: ", data)
+
+  const lastRecharge = data?.[data.length - 1];
+
+  // Group by year-month
+  const monthly = (data ?? []).reduce((acc, row) => {
+    const date = new Date(row.created_at);
+    const key = `${date.getFullYear()}-${date.toLocaleString('en-US', { month: 'long' })}`;
+    acc[key] = (acc[key] || 0) + Number(row.amount);
+    return acc;
+}, {} as Record<string, number>);
+
+  return [monthly, lastRecharge]; 
+}
+
+
+//get paginated recharges for a meter
+export async function getRecharges(meterId: string, page: number = 1, pageSize: number = 10) {
+    const supabase = await supabaseServer();
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data, count, error } = await supabase
+        .from('recharges')
+        .select('*', { count: 'exact' })
+        .eq('meter_id', meterId)
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+    if (error) throw new Error(error.message);
+
+    return {
+        recharges: data ?? [],
+        totalCount: count ?? 0,
+        totalPages: Math.ceil((count ?? 0) / pageSize),
+        currentPage: page,
+    };
+}

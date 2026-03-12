@@ -1,0 +1,207 @@
+'use client';
+
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Zap, ChevronLeft, ChevronRight, Calendar, Zap as ZapIcon } from 'lucide-react';
+import { useState } from 'react';
+import { MeterInterface } from '@/types/meter-types';
+import { formatDate } from '@/lib/utils';
+
+interface TotalRecharged {
+    totalAmount: number;
+    totalCount: number;
+}
+
+interface RechargeRecord {
+    id: string;
+    meter_id: string;
+    amount: string;
+    units: string;
+    token: string;
+    created_at: string;
+    [key: string]: unknown;
+}
+
+
+export default function MeterDetailPageClient({ meterDetails, totalRecharged, monthlyAnalytics, lastRecharge, recharges, currentPage, totalPages }: { meterDetails: MeterInterface, totalRecharged: TotalRecharged, monthlyAnalytics: Record<string, number>, lastRecharge: Record<string, string>, recharges: RechargeRecord[], currentPage: number, totalPages: number }) {
+    const [selectedMonth, setSelectedMonth] = useState('all');
+    const [meterData, setMeterData] = useState<MeterInterface>(meterDetails);
+
+    const months = [
+        { value: 'all', label: 'All Time' },
+        { value: 'january', label: 'January 2024' },
+        { value: 'december', label: 'December 2023' },
+    ];
+
+    return (
+        <div className="bg-background min-h-screen">
+
+            <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+                {/* Quick Stats at Top */}
+                <div className="gap-6 grid md:grid-cols-3 mb-8">
+                    <Card className="p-6 border border-border">
+                        <p className="mb-2 text-muted-foreground text-sm">Meter Name</p>
+                        <p className="flex flex-col items-start font-bold text-foreground text-2xl"><span>{meterData.name}</span> <span className='text-muted-foreground text-sm'>({meterData.type})</span></p>
+                        {/* <p className="mt-2 text-muted-foreground text-base">{meterData.type}</p> */}
+                    </Card>
+                    <Card className="bg-gradient-to-br from-primary/5 to-primary/10 p-6 border border-border">
+                        <p className="mb-2 text-muted-foreground text-sm">Total Recharged</p>
+                        <p className="font-bold text-foreground text-3xl">₦{totalRecharged.totalAmount.toLocaleString()}</p>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-6 border border-border">
+                        <p className="mb-2 text-muted-foreground text-sm">Total Recharges</p>
+                        <p className="font-bold text-foreground text-3xl">{totalRecharged.totalCount}</p>
+                    </Card>
+                </div>
+
+                {/* Monthly & Quick Stats */}
+                <div className="gap-6 grid md:grid-cols-2 mb-8">
+                    <Card className="p-6 border border-border">
+                        <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
+                            <Calendar className="w-5 h-5 text-primary" />
+                            Monthly Analytics
+                        </h3>
+                        <div className="space-y-3 max-h-58 overflow-y-auto custom-scrollbar">
+                            {Object.keys(monthlyAnalytics).length > 0 ? (
+                                Object.entries(monthlyAnalytics).map(([month, amount]) => (
+                                    <div key={month} className="flex justify-between items-center py-2 border-border border-b">
+                                        <span className="text-muted-foreground">{month}</span>
+                                        <span className="font-semibold text-foreground">₦{amount.toLocaleString()}</span>
+                                    </div>
+                                ))
+                            ) :
+                                <div className="flex justify-between items-center py-2 border-border border-b">
+                                    <span className="w-full text-muted-foreground text-center">No data available</span>
+                                </div>
+                            }
+                        </div>
+                    </Card>
+
+                    <Card className="p-6 border border-border">
+                        <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
+                            <Zap className="w-5 h-5 text-primary" />
+                            Quick Stats
+                        </h3>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center py-2 border-border border-b">
+                                <span className="text-muted-foreground">Average Recharge</span>
+                                <span className="font-semibold text-foreground">{totalRecharged.totalCount > 0 ? `₦${Math.round(totalRecharged.totalAmount / totalRecharged.totalCount).toLocaleString()}` : 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-border border-b">
+                                <span className="text-muted-foreground">Last Recharge Date</span>
+                                <span className="font-semibold text-foreground">{lastRecharge ? formatDate(lastRecharge.created_at) : 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-2">
+                                <span className="text-muted-foreground">Last Recharge Amount</span>
+                                <span className="font-semibold text-foreground">{lastRecharge ? `₦${Number(lastRecharge.amount).toLocaleString()}` : 'N/A'}</span>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Recharge History Section */}
+                <div id="recharge-history" className="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 className="font-bold text-foreground text-2xl">Recharge History</h2>
+                        <p className="mt-1 text-muted-foreground text-sm">View all your recharges and tokens</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            className="bg-background px-4 py-2 border border-border rounded-md text-foreground text-sm"
+                        >
+                            {months.map((month) => (
+                                <option key={month.value} value={month.value}>
+                                    {month.label}
+                                </option>
+                            ))}
+                        </select>
+                        <Button className="gap-2">
+                            <Zap className="w-4 h-4" />
+                            Recharge Meter
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Recharge History Table at Bottom */}
+                <Card className="border border-border overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-secondary/50 border-border border-b">
+                                <tr>
+                                    <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
+                                        Date
+                                    </th>
+                                    <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
+                                        Amount
+                                    </th>
+                                    <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
+                                        Units
+                                    </th>
+                                    <th className="px-6 py-3 font-semibold text-foreground text-xs text-left uppercase tracking-wider">
+                                        Token
+                                    </th>
+                                    <th className="px-6 py-3 font-semibold text-foreground text-xs text-right uppercase tracking-wider">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                                {recharges.map((recharge) => (
+                                    <tr key={recharge.id} className="hover:bg-secondary/30 transition-colors">
+                                        <td className="px-6 py-4 text-foreground text-sm">
+                                            {formatDate(recharge.created_at)}
+                                        </td>
+                                        <td className="px-6 py-4 font-semibold text-foreground text-sm">
+                                            ₦{Number(recharge.amount).toLocaleString()}
+                                        </td>
+                                        <td className="flex items-center gap-2 px-6 py-4 text-foreground text-sm">
+                                            <ZapIcon className="w-4 h-4 text-primary" />
+                                            {recharge.units}
+                                        </td>
+                                        <td className="px-6 py-4 font-mono text-muted-foreground text-sm">{recharge.token}</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <Button variant="outline" size="sm">
+                                                Copy Token
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </Card>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-6">
+                        <Link
+                            href={`?page=${currentPage - 1}#recharge-history`}
+                            className={currentPage <= 1 ? 'pointer-events-none opacity-50' : ''}
+                        >
+                            <Button variant="outline" size="sm" disabled={currentPage <= 1}>
+                                <ChevronLeft className="w-4 h-4" />
+                                Previous
+                            </Button>
+                        </Link>
+                        <span className="text-muted-foreground text-sm">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <Link
+                            href={`?page=${currentPage + 1}#recharge-history`}
+                            className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : ''}
+                        >
+                            <Button variant="outline" size="sm" disabled={currentPage >= totalPages}>
+                                Next
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </Link>
+                    </div>
+                )}
+            </main>
+        </div>
+    );
+}

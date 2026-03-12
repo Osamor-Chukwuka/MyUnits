@@ -100,7 +100,7 @@ export default function Dashboard() {
             <Card className="p-6 border border-border">
               <p className="mb-2 text-muted-foreground text-sm">Total Amount Recharged</p>
               <p className="font-bold text-foreground text-4xl">₦{totalRecharged.toLocaleString()}</p>
-              <p className="mt-2 text-muted-foreground text-sm">{totalRecharges} recharges total</p>
+              <p className="mt-2 text-muted-foreground text-base">{totalRecharges} recharges total</p>
             </Card>
           )}
 
