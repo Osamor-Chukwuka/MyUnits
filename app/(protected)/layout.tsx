@@ -1,13 +1,12 @@
 import AppNavbar from "@/components/ui/app-navbar";
-import { supabaseServer } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/app/actions/auth-actions";
 
 export default async function protectedLayout({ children, }: Readonly<{ children: React.ReactNode }>) {
-    const supabase = await supabaseServer();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
     
     return (
         <div className={`font-sans antialiased`}>
-            <AppNavbar userFirstName={user?.user_metadata?.first_name || undefined} />
+            <AppNavbar userFirstName={user?.profile?.first_name || undefined} />
             {children}
         </div>
     )

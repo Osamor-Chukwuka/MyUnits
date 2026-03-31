@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { redirect, usePathname } from 'next/navigation';
-import { Zap, Menu, X } from 'lucide-react';
+import { Zap, Menu, X, ChevronDown } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -24,7 +24,6 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
         () => [
             { label: 'Dashboard', href: '/dashboard' },
             { label: 'Appliance Cost', href: '/appliance-calculator' },
-            { label: 'Profile', href: '/profile' },
         ],
         []
     );
@@ -50,7 +49,7 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
         pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
 
     return (
-        <header className="top-0 z-40 sticky bg-card border-border border-b">
+        <header className="top-0 z-40 sticky bg-card border-border border-b overflow-visible">
             <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4 max-w-7xl">
                 <div className="flex justify-between items-center">
                     {/* Brand */}
@@ -89,7 +88,7 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
                         <button
                             type="button"
                             onClick={() => setProfileOpen((v) => !v)}
-                            className="flex flex-col items-center focus:outline-none cursor-pointer"
+                            className="flex items-center gap-1 focus:outline-none cursor-pointer"
                             aria-expanded={profileOpen}
                         >
                             <Avatar>
@@ -97,13 +96,18 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
                                     {userFirstName ? userFirstName.charAt(0).toUpperCase() : ''}
                                 </AvatarFallback>
                             </Avatar>
-                            <span className="mt-1 text-xs capitalize">
-                                {userFirstName}
-                            </span>
+                            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {profileOpen && (
-                            <div className="top-15 -right-16 absolute bg-card shadow-md mt-2 p-1 border border-border rounded-md w-40">
+                            <div className="top-full right-0 absolute z-50 bg-card shadow-md mt-2 p-1 border border-border rounded-md w-40">
+                                <Link
+                                    href="/profile"
+                                    onClick={() => setProfileOpen(false)}
+                                    className="block hover:bg-muted px-3 py-2 rounded font-medium text-muted-foreground hover:text-foreground text-sm"
+                                >
+                                    Profile
+                                </Link>
                                 <button
                                     onClick={() => {
                                         setProfileOpen(false);
@@ -141,9 +145,6 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
                                     {userFirstName ? userFirstName.charAt(0).toUpperCase() : ''}
                                 </AvatarFallback>
                             </Avatar>
-                            <span className="mt-1 text-xs capitalize">
-                                {userFirstName}
-                            </span>
                         </div>
                         <nav className="flex flex-col gap-3">
                             {navItems.map((item) => (
@@ -161,6 +162,19 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
                                     {item.label}
                                 </Link>
                             ))}
+
+                            <Link
+                                href="/profile"
+                                onClick={() => setOpen(false)}
+                                className={[
+                                    'py-2 text-sm font-medium transition-colors',
+                                    isActive('/profile')
+                                        ? 'text-foreground'
+                                        : 'text-muted-foreground hover:text-foreground',
+                                ].join(' ')}
+                            >
+                                Profile
+                            </Link>
 
                             <button
                                 onClick={() => {
