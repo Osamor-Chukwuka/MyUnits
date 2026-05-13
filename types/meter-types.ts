@@ -3,6 +3,7 @@ export interface MeterFormData {
   meterNumber: string;
   disco: string;
   meterType: string;
+  customerName?: string;
 }
 
 export interface DiscoInterface {
@@ -21,5 +22,6 @@ export interface MeterInterface {
   meter_number: string;
   disco: string;
   type: string;
+  customer_name?: string;
   created_at: number;
 }

@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { MeterInterface } from '@/types/meter-types';
 
 import DeleteMeterModal from '@/components/pages/dashboard/delete-meter-modal';
+import RechargeModal from '@/components/pages/dashboard/recharge-modal';
 
 
 export default function Dashboard() {
@@ -27,6 +28,9 @@ export default function Dashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedMeter, setSelectedMeter] = useState<MeterInterface | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // Recharge modal state
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
+  const [rechargeMeter, setRechargeMeter] = useState<MeterInterface | null>(null);
 
   // handle delete meter
   const handleDelete = async (meter: MeterInterface) => {
@@ -121,10 +125,16 @@ export default function Dashboard() {
             <h2 className="font-bold text-foreground text-2xl">Your Meters</h2>
             <p className="mt-1 text-muted-foreground text-sm">Manage and recharge your prepaid meters</p>
           </div>
-          <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
-            <Plus className="w-4 h-4" />
-            Add Meter
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => { setRechargeMeter(null); setIsRechargeModalOpen(true); }}>
+              <Zap className="w-4 h-4" />
+              Recharge Now
+            </Button>
+            <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
+              <Plus className="w-4 h-4" />
+              Add Meter
+            </Button>
+          </div>
         </div>
 
         {/* Meters List */}
@@ -156,6 +166,10 @@ export default function Dashboard() {
 
                   <div className="flex-1 space-y-3 mb-6">
                     <div className="flex justify-between items-center py-2 border-border border-b">
+                      <span className="text-muted-foreground text-sm">Customer Name</span>
+                      <span className="font-semibold text-sm">{meter.customer_name || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-border border-b">
                       <span className="text-muted-foreground text-sm">Meter Number</span>
                       <span className="font-semibold text-sm">{meter.meter_number}</span>
                     </div>
@@ -176,7 +190,12 @@ export default function Dashboard() {
                         View
                       </Button>
                     </Link>
-                    <Button variant="outline" size="sm" className="gap-2 bg-transparent">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-transparent"
+                      onClick={() => { setRechargeMeter(meter); setIsRechargeModalOpen(true); }}
+                    >
                       <Zap className="w-4 h-4" />
                     </Button>
                     <Button
@@ -200,6 +219,14 @@ export default function Dashboard() {
 
       {/* Add Meter Modal */}
       <AddMeterModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} refreshMeterList={handleRefreshMeterList} />
+
+      {/* Recharge Modal */}
+      <RechargeModal
+        isOpen={isRechargeModalOpen}
+        onClose={() => { setIsRechargeModalOpen(false); setRechargeMeter(null); }}
+        meter={rechargeMeter}
+        meters={meters}
+      />
 
       {/* Delete Meter Modal */}
       <DeleteMeterModal

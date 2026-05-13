@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { X } from 'lucide-react';
-import { addMeterAction, fetchDiscos } from '@/app/actions/meter-actions';
+import { addMeterAction, fetchDiscos, verifyMeterWithVtPass } from '@/app/actions/meter-actions';
 import { toast } from 'sonner';
-import { set } from 'react-hook-form';
 import { DiscoInterface, MeterFormData } from '@/types/meter-types';
 
 interface AddMeterModalProps {
@@ -27,6 +26,8 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
   const [submitMeterMessage, setSubmitMeterMessage] = useState<{ error?: string, success?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [discos, setDiscos] = useState<DiscoInterface[]>([]);
+  const [isVerified, setIsVerified] = useState(false);
+  const [customerName, setCustomerName] = useState('');
 
   // call fetch discos action
   useEffect(() => {
@@ -55,53 +56,15 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
     if (!formData.disco) {
       newErrors.disco = 'Please select a distribution company';
     }
-
+    if (!formData.meterType) {
+      newErrors.meterType = 'Please select a meter type';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      //reset errors and others
-      setErrors({});
-      setSubmitMeterMessage({});
-
-      //call the add meter action
-      await addMeterAction(formData);
-
-      toast.success('Meter added successfully!');
-      setSubmitMeterMessage({ success: 'Meter added successfully!' });
-      setTimeout(() => {
-        setSubmitMeterMessage({});
-      }, 2000);
-
-      refreshMeterList();
-
-      //reset formData
-      setFormData({
-        name: '',
-        meterNumber: '',
-        disco: '',
-        meterType: '',
-      });
-
-    } catch (error: unknown) {
-      setSubmitMeterMessage({ error: (error as Error)?.message || 'Failed to add meter. Please try again.' });
-      toast.error((error as Error)?.message || 'Failed to add meter. Please try again.');
-    }
-    finally {
-      setIsSubmitting(false);
-    }
-  };
-
+  // Reset verification when form fields change
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -116,6 +79,66 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
         ...prev,
         [name]: undefined,
       }));
+    }
+    // Reset verification if meter-related fields change
+    if (['meterNumber', 'disco', 'meterType'].includes(name)) {
+      setIsVerified(false);
+      setCustomerName('');
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setSubmitMeterMessage({});
+
+    try {
+      const result = await verifyMeterWithVtPass(formData.disco, formData.meterNumber, formData.meterType);
+      setCustomerName(result.customerName);
+      setIsVerified(true);
+      toast.success('Meter verified successfully!');
+    } catch (error: unknown) {
+      setSubmitMeterMessage({ error: (error as Error)?.message || 'Failed to verify meter. Please try again.' });
+      toast.error((error as Error)?.message || 'Failed to verify meter. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddMeter = async () => {
+    setIsSubmitting(true);
+    setSubmitMeterMessage({});
+
+    try {
+      await addMeterAction({ ...formData, customerName });
+
+      toast.success('Meter added successfully!');
+      setSubmitMeterMessage({ success: 'Meter added successfully!' });
+      setTimeout(() => {
+        setSubmitMeterMessage({});
+      }, 2000);
+
+      refreshMeterList();
+
+      // Reset state
+      setFormData({ name: '', meterNumber: '', disco: '', meterType: '' });
+      setIsVerified(false);
+      setCustomerName('');
+    } catch (error: unknown) {
+      setSubmitMeterMessage({ error: (error as Error)?.message || 'Failed to add meter. Please try again.' });
+      toast.error((error as Error)?.message || 'Failed to add meter. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isVerified) {
+      await handleAddMeter();
+    } else {
+      await handleVerify();
     }
   };
 
@@ -245,6 +268,14 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
             )}
           </div>
 
+          {/* Verified Customer Name */}
+          {isVerified && customerName && (
+            <div className="rounded-lg border border-green-500/30 bg-green-50 dark:bg-green-950/20 px-4 py-3">
+              <p className="text-sm text-muted-foreground">Customer Name</p>
+              <p className="font-semibold text-foreground">{customerName}</p>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
             <Button
@@ -257,7 +288,9 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
               Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={isSubmitting}>
-              {isSubmitting ? 'Adding...' : 'Add Meter'}
+              {isSubmitting
+                ? (isVerified ? 'Adding...' : 'Verifying...')
+                : (isVerified ? 'Add Meter' : 'Verify')}
             </Button>
           </div>
         </form>

@@ -9,6 +9,7 @@ import { Zap, ChevronLeft, ChevronRight, Calendar, Check, Zap as ZapIcon } from 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { MeterInterface } from '@/types/meter-types';
 import { formatDate } from '@/lib/utils';
+import RechargeModal from '@/components/pages/dashboard/recharge-modal';
 
 interface TotalRecharged {
     totalAmount: number;
@@ -43,6 +44,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
     const [isTableLoading, setIsTableLoading] = useState(false);
     const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
     const copiedResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
     useEffect(() => {
         setPeriod(selectedPeriod || 'all');
@@ -162,7 +164,10 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                 <div className="gap-6 grid md:grid-cols-3 mb-8">
                     <Card className="p-6 border border-border">
                         <p className="mb-2 text-muted-foreground text-sm">Meter Name</p>
-                        <p className="flex flex-col items-start font-bold text-foreground text-2xl"><span>{meterDetails.name}</span> <span className='text-muted-foreground text-sm'>({meterDetails.type})</span></p>
+                        <p className="flex flex-col items-start font-bold text-foreground text-2xl">
+                            <span>{meterDetails.name}</span>
+                            <span className='text-muted-foreground text-sm'>({`${meterDetails.type} - ${meterDetails?.customer_name ? `${meterDetails.customer_name.charAt(0).toUpperCase()}${meterDetails.customer_name.toLocaleLowerCase().slice(1)}` : 'N/A'}`})</span>
+                        </p>
                         {/* <p className="mt-2 text-muted-foreground text-base">{meterData.type}</p> */}
                     </Card>
                     <Card className="bg-linear-to-br from-primary/5 to-primary/10 p-6 border border-border">
@@ -248,7 +253,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                                 </option>
                             ))}
                         </select>
-                        <Button className="gap-2">
+                        <Button className="gap-2" onClick={() => setIsRechargeModalOpen(true)}>
                             <Zap className="w-4 h-4" />
                             Recharge Meter
                         </Button>
@@ -397,6 +402,12 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                     </div>
                 )}
             </main>
+
+            <RechargeModal
+                isOpen={isRechargeModalOpen}
+                onClose={() => setIsRechargeModalOpen(false)}
+                meter={meterDetails}
+            />
         </div>
     );
 }

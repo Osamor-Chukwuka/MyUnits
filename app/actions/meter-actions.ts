@@ -60,6 +60,7 @@ export async function addMeterAction(formData: MeterFormData) {
         meter_number: formData.meterNumber,
         disco: formData.disco,
         type: formData.meterType,
+        customer_name: formData.customerName,
     })
 
     if (error) {
@@ -114,7 +115,7 @@ export async function getUserMeters(): Promise<{ meters: MeterInterface[]; count
 
 
 //delete meter 
-export async function deleteMeter(meterId: string){
+export async function deleteMeter(meterId: string) {
     const supabase = await supabaseServer();
 
     const { error } = await supabase.from('meters').delete().eq('id', meterId);
@@ -127,29 +128,29 @@ export async function deleteMeter(meterId: string){
 
 // get monthly analytics for a meter
 export async function getMonthlyAnalytics(meterId: string): Promise<[Record<string, number>, { amount: string, created_at: string }]> {
-  const supabase = await supabaseServer();
+    const supabase = await supabaseServer();
 
-  const { data, error } = await supabase
-    .from('recharges')
-    .select('amount, created_at')
-    .eq('meter_id', meterId)
-    .order('created_at', { ascending: true });
+    const { data, error } = await supabase
+        .from('recharges')
+        .select('amount, created_at')
+        .eq('meter_id', meterId)
+        .order('created_at', { ascending: true });
 
-  if (error) throw new Error(error.message);
+    if (error) throw new Error(error.message);
 
-  console.log("here here: ", data)
+    console.log("here here: ", data)
 
-  const lastRecharge = data?.[data.length - 1];
+    const lastRecharge = data?.[data.length - 1];
 
-  // Group by year-month
-  const monthly = (data ?? []).reduce((acc, row) => {
-    const date = new Date(row.created_at);
-    const key = `${date.getFullYear()}-${date.toLocaleString('en-US', { month: 'long' })}`;
-    acc[key] = (acc[key] || 0) + Number(row.amount);
-    return acc;
-}, {} as Record<string, number>);
+    // Group by year-month
+    const monthly = (data ?? []).reduce((acc, row) => {
+        const date = new Date(row.created_at);
+        const key = `${date.getFullYear()}-${date.toLocaleString('en-US', { month: 'long' })}`;
+        acc[key] = (acc[key] || 0) + Number(row.amount);
+        return acc;
+    }, {} as Record<string, number>);
 
-  return [monthly, lastRecharge]; 
+    return [monthly, lastRecharge];
 }
 
 
@@ -289,5 +290,36 @@ export async function getRecharges(
         totalPages: Math.ceil((count ?? 0) / pageSize),
         currentPage: page,
     };
+}
+
+//Verify meter number with vtpass
+export async function verifyMeterWithVtPass(disco: string, meterNumber: string, type: string) {
+    const result = await fetch(`${baseUrl}/merchant-verify`, {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+            'api-key': vtPassApiKey,
+            'secret-key': vtPassSecretKey,
+        },
+        body: JSON.stringify({
+            billersCode: meterNumber,
+            serviceID: disco,
+            type: type,
+        })
+    })
+
+    if(!result.ok) {
+        throw new Error('Failed to verify meter number');
+    }
+
+    const data = await result.json();
+
+    console.log("verify meter number", data)
+
+    if(data?.content?.WrongBillersCode || data?.content?.error) {
+        throw new Error(data?.content?.error || 'Failed to verify meter number: Please check the meter details and try again.');
+    }
+
+    return { customerName: data.content.Customer_Name as string };
 }
 
