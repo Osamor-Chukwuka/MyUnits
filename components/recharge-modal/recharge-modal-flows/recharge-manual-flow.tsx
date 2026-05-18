@@ -4,21 +4,21 @@ import { FormEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { fetchDiscos, verifyMeterWithVtPass } from '@/app/actions/meter-actions';
 import { Button } from '@/components/ui/button';
-import { DiscoInterface } from '@/types/meter-types';
-import RechargeConfirmationModal, { RechargeConfirmationTarget } from './recharge-confirmation-modal';
-import RechargeAmountFields, { getRechargeAmountError } from './recharge-amount-fields';
-import RechargeModalShell from './recharge-modal-shell';
-import RechargeSourceSwitch, { RechargeMeterSource } from './recharge-source-switch';
+import { Spinner } from '@/components/ui/spinner';
+import { DiscoInterface, MeterTotalFees } from '@/types/meter-types';
+import RechargeConfirmationModal, { RechargeConfirmationTarget } from '../recharge-confirmation-modal';
+import RechargeAmountFields, { getRechargeAmountError } from '../sub-components/recharge-amount-fields';
+import { getRechargeMeterTotalFees } from '../helpers/recharge-meter-rates';
+import RechargeModalShell from '../sub-components/recharge-modal-shell';
+import RechargeSourceSwitch, { RechargeMeterSource } from '../sub-components/recharge-source-switch';
 
 interface RechargeManualFlowProps {
-  isOpen: boolean;
   onClose: () => void;
   meterSource: RechargeMeterSource;
   onMeterSourceChange: (source: RechargeMeterSource) => void;
 }
 
 export default function RechargeManualFlow({
-  isOpen,
   onClose,
   meterSource,
   onMeterSourceChange,
@@ -33,29 +33,13 @@ export default function RechargeManualFlow({
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [commissionLoading, setCommissionLoading] = useState(false);
+  const [meterTotalFees, setMeterTotalFees] = useState<MeterTotalFees | null>(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [confirmationTarget, setConfirmationTarget] = useState<RechargeConfirmationTarget | null>(null);
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    setManualMeterNumber('');
-    setManualDisco('');
-    setManualMeterType('');
-    setManualErrors({});
-    setDiscos([]);
-    setIsVerified(false);
-    setCustomerName('');
-    setAmount('');
-    setAmountError('');
-    setErrorMessage('');
-    setIsSubmitting(false);
-    setIsConfirmationOpen(false);
-    setConfirmationTarget(null);
-
     const loadDiscos = async () => {
       try {
         const data = await fetchDiscos();
@@ -66,11 +50,12 @@ export default function RechargeManualFlow({
     };
 
     void loadDiscos();
-  }, [isOpen]);
+  }, []);
 
   const resetVerification = () => {
     setIsVerified(false);
     setCustomerName('');
+    setMeterTotalFees(null);
   };
 
   const validateManualFields = () => {
@@ -103,7 +88,7 @@ export default function RechargeManualFlow({
       return;
     }
 
-    setIsSubmitting(true);
+    setIsVerifying(true);
     setErrorMessage('');
 
     try {
@@ -116,7 +101,7 @@ export default function RechargeManualFlow({
       setErrorMessage(message);
       toast.error(message);
     } finally {
-      setIsSubmitting(false);
+      setIsVerifying(false);
     }
   };
 
@@ -133,6 +118,24 @@ export default function RechargeManualFlow({
     const manualDiscoName = discos.find((discoOption) => discoOption.serviceID === manualDisco)?.name ?? manualDisco;
 
     setErrorMessage('');
+
+    //re-verify meter details with VTpass to get the current rates and total fees
+    try {
+      setCommissionLoading(true);
+      const totalFees = await getRechargeMeterTotalFees({
+        disco: manualDisco,
+        meterNumber: manualMeterNumber,
+        meterType: manualMeterType,
+        amount,
+      });
+      setMeterTotalFees(totalFees);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      return;
+    } finally {
+      setCommissionLoading(false);
+    }
+
     setConfirmationTarget({
       meterNumber: manualMeterNumber,
       disco: manualDiscoName,
@@ -140,30 +143,6 @@ export default function RechargeManualFlow({
       customerName,
     });
     setIsConfirmationOpen(true);
-  };
-
-  const handleConfirmRecharge = async () => {
-    if (!confirmationTarget) {
-      setIsConfirmationOpen(false);
-      setErrorMessage('Meter details are missing. Please start again.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrorMessage('');
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.info('Recharge backend placeholder completed.');
-      setIsConfirmationOpen(false);
-      onClose();
-    } catch (error: unknown) {
-      const message = (error as Error)?.message || 'Recharge failed. Please try again.';
-      setErrorMessage(message);
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -176,10 +155,6 @@ export default function RechargeManualFlow({
 
     await handleRecharge();
   };
-
-  if (!isOpen) {
-    return null;
-  }
 
   return (
     <>
@@ -276,8 +251,16 @@ export default function RechargeManualFlow({
                 onAmountChange={(value) => {
                   setAmount(value);
                   setAmountError('');
+                  setMeterTotalFees(null);
                 }}
               />
+            )}
+
+            {commissionLoading && (
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-muted-foreground text-sm">
+                <Spinner className="size-4" />
+                Checking current meter rates...
+              </div>
             )}
 
             {errorMessage && <p className="text-destructive text-sm text-center">{errorMessage}</p>}
@@ -288,12 +271,12 @@ export default function RechargeManualFlow({
                 variant="outline"
                 onClick={onClose}
                 className="flex-1 bg-transparent"
-                disabled={isSubmitting}
+                disabled={isVerifying || commissionLoading}
               >
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                {!isVerified ? (isSubmitting ? 'Verifying...' : 'Verify') : isSubmitting ? 'Processing...' : 'Recharge Now'}
+              <Button type="submit" className="flex-1" disabled={isVerifying || commissionLoading}>
+                {!isVerified ? (isVerifying ? 'Verifying...' : 'Verify') : commissionLoading ? 'Checking rates...' : 'Recharge Now'}
               </Button>
             </div>
           </form>
@@ -303,11 +286,9 @@ export default function RechargeManualFlow({
       <RechargeConfirmationModal
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onConfirm={handleConfirmRecharge}
+        onRechargeComplete={onClose}
         rechargeTarget={confirmationTarget}
-        amount={Number(amount) || 0}
-        isSubmitting={isSubmitting}
-        errorMessage={errorMessage}
+        meterTotalFees={meterTotalFees}
       />
     </>
   );

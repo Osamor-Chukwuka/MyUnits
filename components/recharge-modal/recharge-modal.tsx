@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { MeterInterface } from '@/types/meter-types';
-import RechargeManualFlow from './recharge-manual-flow';
-import RechargePrefilledFlow from './recharge-prefilled-flow';
-import RechargeSelectFlow from './recharge-select-flow';
-import { RechargeMeterSource } from './recharge-source-switch';
+import RechargeManualFlow from './recharge-modal-flows/recharge-manual-flow';
+import RechargePrefilledFlow from './recharge-modal-flows/recharge-prefilled-flow';
+import RechargeSelectFlow from './recharge-modal-flows/recharge-select-flow';
+import { RechargeMeterSource } from './sub-components/recharge-source-switch';
 
 interface RechargeModalProps {
   isOpen: boolean;
@@ -27,20 +27,22 @@ export default function RechargeModal({ isOpen, onClose, meter, meters = [] }: R
     onClose();
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   if (isPrefilledMode && meter) {
-    return <RechargePrefilledFlow isOpen={isOpen} onClose={handleClose} meter={meter} />;
+    return <RechargePrefilledFlow onClose={handleClose} meter={meter} />;
   }
 
   return meterSource === 'manual' ? (
     <RechargeManualFlow
-      isOpen={isOpen}
       onClose={handleClose}
       meterSource={meterSource}
       onMeterSourceChange={setMeterSource}
     />
   ) : (
     <RechargeSelectFlow
-      isOpen={isOpen}
       onClose={handleClose}
       meters={meters}
       meterSource={meterSource}

@@ -9,7 +9,7 @@ import { Zap, ChevronLeft, ChevronRight, Calendar, Check, Zap as ZapIcon } from 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { MeterInterface } from '@/types/meter-types';
 import { formatDate } from '@/lib/utils';
-import RechargeModal from '@/components/pages/dashboard/recharge-modal';
+import RechargeModal from '@/components/recharge-modal/recharge-modal';
 
 interface TotalRecharged {
     totalAmount: number;

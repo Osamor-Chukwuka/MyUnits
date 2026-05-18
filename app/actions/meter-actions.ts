@@ -320,6 +320,6 @@ export async function verifyMeterWithVtPass(disco: string, meterNumber: string, 
         throw new Error(data?.content?.error || 'Failed to verify meter number: Please check the meter details and try again.');
     }
 
-    return { customerName: data.content.Customer_Name as string };
+    return { customerName: data.content.Customer_Name as string, data: data };
 }
 

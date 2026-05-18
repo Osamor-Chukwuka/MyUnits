@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,8 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
-
-const SERVICE_FEE = 100;
+import { MeterTotalFees } from '@/types/meter-types';
 
 export interface RechargeConfirmationTarget {
   name?: string;
@@ -24,23 +24,48 @@ export interface RechargeConfirmationTarget {
 interface RechargeConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => Promise<void>;
+  onRechargeComplete?: () => void;
   rechargeTarget: RechargeConfirmationTarget | null;
-  amount: number;
-  isSubmitting: boolean;
-  errorMessage?: string;
+  meterTotalFees?: MeterTotalFees | null;
 }
 
-export default function RechargeConfirmationModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  rechargeTarget,
-  amount,
-  isSubmitting,
-  errorMessage,
-}: RechargeConfirmationModalProps) {
-  const totalAmount = amount + SERVICE_FEE;
+export default function RechargeConfirmationModal(props: RechargeConfirmationModalProps) {
+  const { isOpen, onClose, onRechargeComplete, rechargeTarget, meterTotalFees } = props;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    setIsSubmitting(false);
+    setErrorMessage('');
+  }, [isOpen]);
+
+
+  const handleConfirmRecharge = async () => {
+    if (!rechargeTarget) {
+      setErrorMessage('Meter details are missing. Please start again.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage('');
+
+    try {
+      //call paystack
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      onClose();
+      onRechargeComplete?.();
+    } catch (error: unknown) {
+      const message = (error as Error)?.message || 'Recharge failed. Please try again.';
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  //call paystack
+  const callPaystack = async () => {
+    
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -56,7 +81,7 @@ export default function RechargeConfirmationModal({
           <div className="space-y-5">
             <div className="text-center">
               <p className="text-muted-foreground text-xs uppercase tracking-wide">Total Amount</p>
-              <p className="mt-1 font-bold text-foreground text-3xl">₦{totalAmount.toLocaleString()}</p>
+              <p className="mt-1 font-bold text-foreground text-3xl">₦{meterTotalFees?.totalAmount.toLocaleString()}</p>
             </div>
 
             <div className="space-y-3 rounded-lg border border-border bg-secondary/30 p-4">
@@ -89,15 +114,15 @@ export default function RechargeConfirmationModal({
             <div className="space-y-3 rounded-lg border border-border p-4">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground text-sm">Selected Amount</span>
-                <span className="font-semibold text-foreground text-sm">₦{amount.toLocaleString()}</span>
+                <span className="font-semibold text-foreground text-sm">₦{meterTotalFees?.amount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground text-sm">Service Fee</span>
-                <span className="font-semibold text-foreground text-sm">₦{SERVICE_FEE.toLocaleString()}</span>
+                <span className="font-semibold text-foreground text-sm">₦{meterTotalFees?.paystackFee.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center pt-3 border-border border-t">
                 <span className="font-semibold text-foreground text-sm">Total Amount</span>
-                <span className="font-bold text-foreground text-lg">₦{totalAmount.toLocaleString()}</span>
+                <span className="font-bold text-foreground text-lg">₦{meterTotalFees?.totalAmount.toLocaleString()}</span>
               </div>
             </div>
 
@@ -118,7 +143,7 @@ export default function RechargeConfirmationModal({
           <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1 h-11 text-base">
             Cancel
           </Button>
-          <Button onClick={onConfirm} disabled={isSubmitting || !rechargeTarget} className="flex-1 h-11 text-base">
+          <Button onClick={handleConfirmRecharge} disabled={isSubmitting || !rechargeTarget} className="flex-1 h-11 text-base">
             {isSubmitting ? (
               <span className="flex items-center gap-2">
                 <Spinner className="size-4" />

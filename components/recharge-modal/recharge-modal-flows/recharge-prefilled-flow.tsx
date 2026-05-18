@@ -1,35 +1,26 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MeterInterface } from '@/types/meter-types';
-import RechargeConfirmationModal, { RechargeConfirmationTarget } from './recharge-confirmation-modal';
-import RechargeAmountFields, { getRechargeAmountError } from './recharge-amount-fields';
-import RechargeModalShell from './recharge-modal-shell';
+import { Spinner } from '@/components/ui/spinner';
+import { MeterInterface, MeterTotalFees } from '@/types/meter-types';
+import RechargeConfirmationModal, { RechargeConfirmationTarget } from '../recharge-confirmation-modal';
+import RechargeAmountFields, { getRechargeAmountError } from '../sub-components/recharge-amount-fields';
+import { getRechargeMeterTotalFees } from '../helpers/recharge-meter-rates';
+import RechargeModalShell from '../sub-components/recharge-modal-shell';
 
 interface RechargePrefilledFlowProps {
-  isOpen: boolean;
   onClose: () => void;
   meter: MeterInterface;
 }
 
-export default function RechargePrefilledFlow({ isOpen, onClose, meter }: RechargePrefilledFlowProps) {
+export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefilledFlowProps) {
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commissionLoading, setCommissionLoading] = useState(false);
+  const [meterTotalFees, setMeterTotalFees] = useState<MeterTotalFees | null>(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setAmount('');
-      setAmountError('');
-      setErrorMessage('');
-      setIsSubmitting(false);
-      setIsConfirmationOpen(false);
-    }
-  }, [isOpen]);
 
   const rechargeTarget: RechargeConfirmationTarget = {
     name: meter.name,
@@ -51,35 +42,31 @@ export default function RechargePrefilledFlow({ isOpen, onClose, meter }: Rechar
     }
 
     setErrorMessage('');
-    setIsConfirmationOpen(true);
-  };
 
-  const handleConfirmRecharge = async () => {
-    setIsSubmitting(true);
-    setErrorMessage('');
-
+    //re-verify meter details with VTpass to get the current rates and total fees
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.info('Recharge backend placeholder completed.');
-      setIsConfirmationOpen(false);
-      onClose();
-    } catch (error: unknown) {
-      const message = (error as Error)?.message || 'Recharge failed. Please try again.';
-      setErrorMessage(message);
-      toast.error(message);
+      setCommissionLoading(true);
+      const totalFees = await getRechargeMeterTotalFees({
+        disco: meter.disco,
+        meterNumber: meter.meter_number,
+        meterType: meter.type,
+        amount,
+      });
+      setMeterTotalFees(totalFees);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      return;
     } finally {
-      setIsSubmitting(false);
+      setCommissionLoading(false);
     }
+
+    setIsConfirmationOpen(true);
   };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     await handleRecharge();
   };
-
-  if (!isOpen) {
-    return null;
-  }
 
   return (
     <>
@@ -117,23 +104,25 @@ export default function RechargePrefilledFlow({ isOpen, onClose, meter }: Rechar
               onAmountChange={(value) => {
                 setAmount(value);
                 setAmountError('');
+                setMeterTotalFees(null);
               }}
             />
+
+            {commissionLoading && (
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-muted-foreground text-sm">
+                <Spinner className="size-4" />
+                Checking current meter rates...
+              </div>
+            )}
 
             {errorMessage && <p className="text-destructive text-sm text-center">{errorMessage}</p>}
 
             <div className="flex gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="flex-1 bg-transparent"
-                disabled={isSubmitting}
-              >
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent" disabled={commissionLoading}>
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                {isSubmitting ? 'Processing...' : 'Recharge Now'}
+              <Button type="submit" className="flex-1" disabled={commissionLoading}>
+                {commissionLoading ? 'Checking rates...' : 'Recharge Now'}
               </Button>
             </div>
           </form>
@@ -143,11 +132,9 @@ export default function RechargePrefilledFlow({ isOpen, onClose, meter }: Rechar
       <RechargeConfirmationModal
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onConfirm={handleConfirmRecharge}
+        onRechargeComplete={onClose}
         rechargeTarget={rechargeTarget}
-        amount={Number(amount) || 0}
-        isSubmitting={isSubmitting}
-        errorMessage={errorMessage}
+        meterTotalFees={meterTotalFees}
       />
     </>
   );

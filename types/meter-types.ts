@@ -25,3 +25,16 @@ export interface MeterInterface {
   customer_name?: string;
   created_at: number;
 }
+
+export interface RechargeMeterCommission {
+  amount?: number | string | null;
+  rate?: string | null;
+  rate_type?: string | null;
+}
+
+export type MeterTotalFees = {
+  totalAmount: number;
+  amount: number;
+  paystackFee: number;
+  vtpassCommission: number;
+};

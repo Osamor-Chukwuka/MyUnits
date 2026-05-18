@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { MeterInterface } from '@/types/meter-types';
 
 import DeleteMeterModal from '@/components/pages/dashboard/delete-meter-modal';
-import RechargeModal from '@/components/pages/dashboard/recharge-modal';
+import RechargeModal from '@/components/recharge-modal/recharge-modal';
 
 
 export default function Dashboard() {
