@@ -16,18 +16,15 @@ interface RechargeMonthOption {
     label: string;
 }
 
-//define vtPass base url
-const baseUrl = 'https://sandbox.vtpass.com/api' //sandbox url
-const liveBaseUrl = ' https://vtpass.com/api' //live url
-
 //get env variables
+const vtPassBaseUrl = process.env.VTPASS_BASE_URL || '';
 const vtPassApiKey = process.env.VTPASS_API_KEY || '';
 const vtPassPublicKey = process.env.VTPASS_PUBLIC_KEY || '';
 const vtPassSecretKey = process.env.VTPASS_SECRET_KEY || '';
 
 //fetch list of discos from vtpass
 export async function fetchDiscos() {
-    const result = await fetch(`${baseUrl}/services?identifier=electricity-bill`, {
+    const result = await fetch(`${vtPassBaseUrl}/services?identifier=electricity-bill`, {
         headers: {
             'content-type': 'application/json',
             'api-key': vtPassApiKey,
@@ -294,7 +291,7 @@ export async function getRecharges(
 
 //Verify meter number with vtpass
 export async function verifyMeterWithVtPass(disco: string, meterNumber: string, type: string) {
-    const result = await fetch(`${baseUrl}/merchant-verify`, {
+    const result = await fetch(`${vtPassBaseUrl}/merchant-verify`, {
         method: 'POST',
         headers: {
             'content-type': 'application/json',

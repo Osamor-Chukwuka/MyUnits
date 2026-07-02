@@ -23,6 +23,7 @@ export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefil
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   const rechargeTarget: RechargeConfirmationTarget = {
+    id: meter.id,
     name: meter.name,
     meterNumber: meter.meter_number,
     disco: meter.disco,

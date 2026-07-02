@@ -34,6 +34,8 @@ export interface RechargeMeterCommission {
 
 export type MeterTotalFees = {
   totalAmount: number;
+  totalCharges: number;
+  totalCommission: number;
   amount: number;
   paystackFee: number;
   vtpassCommission: number;

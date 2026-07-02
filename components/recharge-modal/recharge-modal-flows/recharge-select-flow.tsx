@@ -74,6 +74,7 @@ export default function RechargeSelectFlow({
     }
 
     setConfirmationTarget({
+      id: selectedMeter.id,
       name: selectedMeter.name,
       meterNumber: selectedMeter.meter_number,
       disco: selectedMeter.disco,
