@@ -1,13 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { redirect, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Zap, Menu, X, ChevronDown } from 'lucide-react';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { supabaseBrowser } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -102,6 +100,13 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
                         {profileOpen && (
                             <div className="top-full right-0 absolute z-50 bg-card shadow-md mt-2 p-1 border border-border rounded-md w-40">
                                 <Link
+                                    href="/history"
+                                    onClick={() => setProfileOpen(false)}
+                                    className="block hover:bg-muted px-3 py-2 rounded font-medium text-muted-foreground hover:text-foreground text-sm"
+                                >
+                                    History
+                                </Link>
+                                <Link
                                     href="/profile"
                                     onClick={() => setProfileOpen(false)}
                                     className="block hover:bg-muted px-3 py-2 rounded font-medium text-muted-foreground hover:text-foreground text-sm"
@@ -162,6 +167,19 @@ export default function AppNavbar({ brand = 'MyUnits', userFirstName}: { brand?:
                                     {item.label}
                                 </Link>
                             ))}
+
+                            <Link
+                                href="/history"
+                                onClick={() => setOpen(false)}
+                                className={[
+                                    'py-2 text-sm font-medium transition-colors',
+                                    isActive('/history')
+                                        ? 'text-foreground'
+                                        : 'text-muted-foreground hover:text-foreground',
+                                ].join(' ')}
+                            >
+                                History
+                            </Link>
 
                             <Link
                                 href="/profile"

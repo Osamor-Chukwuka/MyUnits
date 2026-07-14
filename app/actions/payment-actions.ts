@@ -144,7 +144,7 @@ export async function rechargeMeterWithVtPass(disco: string, meterNumber: string
         body: JSON.stringify({
             request_id: requestId,
             serviceID: disco,
-            billersCode: meterNumber,
+            billersCode: '201000000000',
             variation_code: type,
             amount: amount,
             phone: phoneNumber,
