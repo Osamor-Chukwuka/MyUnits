@@ -1,5 +1,6 @@
 'use server'
 
+import { getAppUrl } from "@/lib/get-app-url";
 import { supabaseServer } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -66,12 +67,13 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
     };
 
     //start the main user creation logic
+    const appUrl = await getAppUrl();
     const supabase = await supabaseServer();
     const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-            emailRedirectTo: `${process.env.APP_URL}/auth/callback`,
+            emailRedirectTo: `${appUrl}/auth/callback`,
             data: {
                 first_name,
                 last_name,
