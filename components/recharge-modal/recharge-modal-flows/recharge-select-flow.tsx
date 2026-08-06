@@ -12,6 +12,7 @@ import RechargeSourceSwitch, { RechargeMeterSource } from '../sub-components/rec
 
 interface RechargeSelectFlowProps {
   onClose: () => void;
+  onRechargeComplete?: () => void | Promise<void>;
   meters: MeterInterface[];
   meterSource: RechargeMeterSource;
   onMeterSourceChange: (source: RechargeMeterSource) => void;
@@ -19,6 +20,7 @@ interface RechargeSelectFlowProps {
 
 export default function RechargeSelectFlow({
   onClose,
+  onRechargeComplete,
   meters,
   meterSource,
   onMeterSourceChange,
@@ -125,7 +127,7 @@ export default function RechargeSelectFlow({
                     <span className="font-semibold text-foreground text-sm">{selectedMeter.meter_number}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground text-sm">Distribution Company</span>
+                    <span className="text-muted-foreground text-sm">Service area</span>
                     <span className="font-semibold text-foreground text-sm">{selectedMeter.disco}</span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -157,7 +159,7 @@ export default function RechargeSelectFlow({
             {commissionLoading && (
               <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-muted-foreground text-sm">
                 <Spinner className="size-4" />
-                Checking current meter rates...
+                Getting your total...
               </div>
             )}
 
@@ -168,7 +170,7 @@ export default function RechargeSelectFlow({
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={commissionLoading}>
-                {commissionLoading ? 'Checking rates...' : 'Recharge Now'}
+                {commissionLoading ? 'Getting total...' : 'Recharge Now'}
               </Button>
             </div>
           </form>
@@ -178,7 +180,7 @@ export default function RechargeSelectFlow({
       <RechargeConfirmationModal
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onRechargeComplete={onClose}
+        onRechargeComplete={onRechargeComplete}
         rechargeTarget={confirmationTarget}
         meterTotalFees={meterTotalFees}
       />

@@ -131,7 +131,17 @@ export async function verifyPaystackPayment(reference: string): Promise<VerifyPa
 
 
 //Recharge Meter with VTpass
-export async function rechargeMeterWithVtPass(disco: string, meterNumber: string, type: string, amount: number, phoneNumber: string) {
+export async function rechargeMeterWithVtPass(disco: string, meterNumber: string, type: string, amount: number) {
+    const user = await getCurrentUser();
+    const phoneNumber = String(user?.profile?.phone_number ?? '').replace(/\s+/g, '').trim();
+
+    // VTpass expects a customer phone number for the recharge request.
+    // We read it from the signed-in user's profile so the client does not
+    // need to keep passing sensitive account data around.
+    if (!phoneNumber) {
+        throw new Error('Please add your phone number to your account before recharging.');
+    }
+
     const requestId = generateVtPassRequestId();
 
     const result = await fetch(`${vtPassBaseUrl}/pay`, {
@@ -145,6 +155,7 @@ export async function rechargeMeterWithVtPass(disco: string, meterNumber: string
             request_id: requestId,
             serviceID: disco,
             billersCode: meterNumber,
+            // billersCode: '201000000000',
             variation_code: type,
             amount: amount,
             phone: phoneNumber,

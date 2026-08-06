@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Mail, Calendar, Shield, KeyRound, Pencil, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Mail, Calendar, Shield, KeyRound, Pencil, Clock, CheckCircle2, AlertCircle, Phone } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,34 +22,33 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
   const initials = (profile.firstName?.[0] ?? profile.email?.[0] ?? 'U').toUpperCase();
 
   return (
-    <div className="bg-background min-h-screen">
-      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
-        {/* Profile header card */}
-        <Card className="relative mb-8 overflow-hidden border border-border">
-          <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-br from-primary/15 to-primary/5" />
-          <div className="relative flex sm:flex-row flex-col sm:items-end gap-5 px-6 pt-14 pb-6">
-            <Avatar className="border-4 border-background rounded-full w-20 h-20 shadow-sm">
-              <AvatarFallback className="bg-primary/10 font-bold text-primary text-2xl">{initials}</AvatarFallback>
+    <div className="min-h-screen">
+      <main className="app-container max-w-4xl">
+        <section className="app-hero-panel mb-8">
+          <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end">
+            <Avatar className="h-20 w-20 rounded-full border-4 border-white/20 shadow-lg">
+              <AvatarFallback className="bg-accent text-2xl font-bold text-primary">{initials}</AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-bold text-foreground text-2xl truncate">{displayName}</h1>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">Account</p>
+              <h1 className="mt-3 truncate text-4xl font-bold tracking-tight text-primary-foreground">{displayName}</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <p className="text-sm text-primary-foreground/65">{profile.email}</p>
                 {profile.emailVerified ? (
-                  <Badge className="gap-1 bg-green-600/10 text-green-600 hover:bg-green-600/10 text-xs">
+                  <Badge className="gap-1 bg-accent/20 text-accent hover:bg-accent/20 text-xs">
                     <CheckCircle2 className="w-3 h-3" />
                     Verified
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 text-xs">
+                  <Badge variant="outline" className="gap-1 border-accent/45 text-accent text-xs">
                     <AlertCircle className="w-3 h-3" />
                     Not verified
                   </Badge>
                 )}
               </div>
-              <p className="text-muted-foreground text-sm">{profile.email}</p>
             </div>
           </div>
-        </Card>
+        </section>
 
         <div className="gap-6 grid">
           {/* Account info */}
@@ -84,6 +83,13 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
                   <Mail className="w-3 h-3" /> Email Address
                 </p>
                 <p className="font-medium text-foreground text-sm">{profile.email}</p>
+              </div>
+
+              <div className="bg-muted/30 px-4 py-3 border border-border rounded-lg">
+                <p className="flex items-center gap-1.5 mb-1 text-muted-foreground text-xs uppercase tracking-wider">
+                  <Phone className="w-3 h-3" /> Phone Number
+                </p>
+                <p className="font-medium text-foreground text-sm">{profile.phoneNumber || '-'}</p>
               </div>
 
               <div className="gap-4 grid sm:grid-cols-2">

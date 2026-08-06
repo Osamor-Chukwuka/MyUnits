@@ -65,7 +65,7 @@ export default function RechargeResultModal({
       : normalizedStatus === 'processing'
         ? 'Recharge Processing'
         : normalizedStatus === 'requery_required'
-          ? 'Recharge Needs Requery'
+          ? 'Still checking'
         : normalizedStatus === 'reversed'
           ? 'Payment Reversed'
           : 'Recharge Failed';
@@ -77,7 +77,7 @@ export default function RechargeResultModal({
       : normalizedStatus === 'processing'
         ? 'Your recharge is still being processed. Please check back shortly for the final status.'
         : normalizedStatus === 'requery_required'
-          ? 'We could not confirm this recharge yet. Please go to Recharge History and click the Requery button to check the final status.'
+          ? 'We could not confirm this recharge yet. Please check your payment history and tap Get token again shortly.'
         : normalizedStatus === 'reversed'
           ? 'The payment failed and your money has been reversed to your account.'
           : 'We could not complete this recharge. Please try again.');

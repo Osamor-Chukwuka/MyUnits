@@ -5,7 +5,7 @@ export default async function protectedLayout({ children, }: Readonly<{ children
     const user = await getCurrentUser();
     
     return (
-        <div className={`font-sans antialiased`}>
+        <div className="app-shell font-sans antialiased">
             <AppNavbar userFirstName={user?.profile?.first_name || undefined} />
             {children}
         </div>

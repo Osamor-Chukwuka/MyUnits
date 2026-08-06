@@ -6,12 +6,20 @@ import { redirect } from "next/navigation";
 export type AuthActionState = {
     ok: boolean;
     message?: string;
-    fieldErrors?: Partial<Record<'first_name' | 'last_name' | 'email' | 'password', string>>;
-    values?: Partial<Record<'first_name' | 'last_name' | 'email' | 'password' | 'confirm_password', string>>;
+    fieldErrors?: Partial<Record<'first_name' | 'last_name' | 'phone_number' | 'email' | 'password', string>>;
+    values?: Partial<Record<'first_name' | 'last_name' | 'phone_number' | 'email' | 'password' | 'confirm_password', string>>;
 }
 
 function isEmail(v: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function normalizePhoneNumber(value: string) {
+    return value.replace(/\s+/g, '').trim();
+}
+
+function isValidPhoneNumber(value: string) {
+    return /^\+?\d{10,15}$/.test(value);
 }
 
 //signup action
@@ -20,6 +28,7 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
     //extarct form data and validate
     const first_name = String(formData.get('first_name') ?? '').trim();
     const last_name = String(formData.get('last_name') ?? '').trim();
+    const phone_number = normalizePhoneNumber(String(formData.get('phone_number') ?? ''));
     const email = String(formData.get('email') ?? '').trim().toLocaleLowerCase();
     const password = String(formData.get('password') ?? '');
     const confirm_password = String(formData.get('confirm_password') ?? '');
@@ -28,6 +37,8 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
 
     if (!first_name) fieldErrors.first_name = 'First name is required';
     if (!last_name) fieldErrors.last_name = 'Last name is required';
+    if (!phone_number) fieldErrors.phone_number = 'Phone number is required';
+    else if (!isValidPhoneNumber(phone_number)) fieldErrors.phone_number = 'Enter a valid phone number';
 
     if (!email) {
         fieldErrors.email = 'Email is required';
@@ -46,6 +57,7 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
             values: {
                 first_name,
                 last_name,
+                phone_number,
                 email,
                 password,
                 confirm_password
@@ -55,7 +67,7 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
 
     //start the main user creation logic
     const supabase = await supabaseServer();
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -63,18 +75,21 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
             data: {
                 first_name,
                 last_name,
+                phone_number,
                 email,
             }
         }
     })
 
     if (error) {
+        console.error('Signup error:', error); 
         return {
             ok: false,
             message: error.message || 'An error occurred during signup',
             values: {
                 first_name,
                 last_name,
+                phone_number,
                 email,
                 password,
                 confirm_password
@@ -84,10 +99,11 @@ export async function signupAction(prevState: AuthActionState, formData: FormDat
 
     return {
         ok: true,
-        message: 'Signup successful! Please check your email to verify your account.',
+        message: 'If this email can be used to create an account, check your inbox for the verification link. If you already have an account, try signing in instead.',
         values: {
             first_name,
             last_name,
+            phone_number,
             email,
             password,
             confirm_password
@@ -126,13 +142,14 @@ export async function loginAction(prevState: AuthActionState, formData: FormData
 
     //start the main user creation logic
     const supabase = await supabaseServer();
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
         email,
         password
     })
 
 
     if (error) {
+        console.error('Login error:', error);
         return {
             ok: false,
             message: error.message || 'An error occurred during login',
@@ -193,7 +210,7 @@ export async function getCurrentUser() {
 
 
 //edit user
-export async function editUserAction(data: {}): Promise<AuthActionState> {
+export async function editUserAction(data: Record<string, unknown>): Promise<AuthActionState> {
     const supabase = await supabaseServer();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -236,7 +253,7 @@ export async function changePassword(current_password: string, new_password: str
     }
 
     //re-authenticate user with current password to make sure current password is correct before allowing password change
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
         email: user.email ?? '',
         password: current_password
     });
@@ -249,7 +266,7 @@ export async function changePassword(current_password: string, new_password: str
     }
 
     //if re-authentication is successful, proceed to update password
-    const { data: resetData, error: updateError } = await supabase.auth.updateUser({
+    const { error: updateError } = await supabase.auth.updateUser({
         password: new_password
     });
 

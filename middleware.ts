@@ -29,7 +29,7 @@ export async function middleware(req: NextRequest) {
 
   const isAuthRoute = pathname.startsWith("/auth");
   const isProtectedRoute =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/meters") || pathname.startsWith("/appliances");
+    pathname.startsWith("/dashboard") || pathname.startsWith("/meters") || pathname.startsWith("/appliances") || pathname.startsWith("/history");
 
   // If not logged in, block protected routes
   if (!user && isProtectedRoute) {
@@ -51,5 +51,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/meters/:path*", "/appliances/:path*", "/auth/:path*"],
+  matcher: ["/dashboard/:path*", "/meters/:path*", "/appliances/:path*", "/history/:path*", "/auth/:path*"],
 };

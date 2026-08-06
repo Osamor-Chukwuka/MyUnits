@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Zap } from 'lucide-react';
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { AuthActionState, loginAction } from '@/app/actions/auth-actions';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -28,21 +28,23 @@ export default function LoginPage() {
     } else {
       toast.error(loginState.message);
     }
-  }, [loginState])
+  }, [loginState, router])
 
   return (
-    <div className="flex justify-center items-center bg-gradient-to-br from-background via-secondary to-background p-4 min-h-screen">
+    <div className="app-shell flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="flex justify-center items-center gap-2 mb-4">
-            <Zap className="w-8 h-8 text-primary" />
-            <span className="font-bold text-foreground text-2xl">MeterPay</span>
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <span className="grid size-12 place-items-center rounded-2xl bg-primary text-accent shadow-lg">
+              <Zap className="w-6 h-6" />
+            </span>
+            <span className="font-bold text-foreground text-2xl">myUnits</span>
           </div>
           <h1 className="mb-2 font-bold text-foreground text-3xl">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to manage your meters</p>
         </div>
 
-        <Card className="p-8 border border-border">
+        <Card className="p-8">
           <form className="space-y-6" action={handleLogin}>
             <div className="space-y-2">
               <label className="block font-medium text-foreground text-sm">Email</label>
@@ -50,7 +52,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 name='email'
-                className="bg-input px-4 py-2 border border-border rounded-md"
+                className="min-h-11 rounded-xl border border-border bg-white/45 px-4 py-2"
                 defaultValue={loginState.values?.email ?? ''}
               />
               {loginState.fieldErrors?.email && <p className="mt-1 text-red-500 text-sm">{loginState.fieldErrors.email}</p>}
@@ -62,7 +64,7 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 name='password'
-                className="bg-input px-4 py-2 border border-border rounded-md"
+                className="min-h-11 rounded-xl border border-border bg-white/45 px-4 py-2"
                 defaultValue={loginState.values?.password ?? ''}
               />
               {loginState.fieldErrors?.password && <p className="mt-1 text-red-500 text-sm">{loginState.fieldErrors.password}</p>}
@@ -93,7 +95,7 @@ export default function LoginPage() {
 
           <div className="mt-6 pt-6 border-border border-t text-center">
             <p className="text-muted-foreground">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/auth/signup" className="font-medium text-primary hover:underline">
                 Sign up
               </Link>

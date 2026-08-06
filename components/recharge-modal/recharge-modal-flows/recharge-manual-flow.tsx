@@ -14,12 +14,14 @@ import RechargeSourceSwitch, { RechargeMeterSource } from '../sub-components/rec
 
 interface RechargeManualFlowProps {
   onClose: () => void;
+  onRechargeComplete?: () => void | Promise<void>;
   meterSource: RechargeMeterSource;
   onMeterSourceChange: (source: RechargeMeterSource) => void;
 }
 
 export default function RechargeManualFlow({
   onClose,
+  onRechargeComplete,
   meterSource,
   onMeterSourceChange,
 }: RechargeManualFlowProps) {
@@ -177,14 +179,14 @@ export default function RechargeManualFlow({
                   resetVerification();
                 }}
                 placeholder="Enter meter number"
-                className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${manualErrors.meterNumber ? 'border-destructive' : 'border-border'}`}
+                className={`min-h-11 w-full rounded-xl border bg-white/45 px-4 py-2 text-foreground placeholder-muted-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${manualErrors.meterNumber ? 'border-destructive' : 'border-border'}`}
               />
               {manualErrors.meterNumber && <p className="mt-1 text-destructive text-sm">{manualErrors.meterNumber}</p>}
             </div>
 
             <div>
               <label htmlFor="manualDisco" className="block mb-2 font-semibold text-foreground text-sm ">
-                Distribution Company
+                Service area
               </label>
               <select
                 id="manualDisco"
@@ -194,9 +196,9 @@ export default function RechargeManualFlow({
                   setManualErrors((currentErrors) => ({ ...currentErrors, disco: '' }));
                   resetVerification();
                 }}
-                className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${manualErrors.disco ? 'border-destructive' : 'border-border'}`}
+                className={`min-h-11 w-full cursor-pointer rounded-xl border bg-white/45 px-4 py-2 text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${manualErrors.disco ? 'border-destructive' : 'border-border'}`}
               >
-                <option value="">Select a distribution company</option>
+                <option value="">Select your service area</option>
                 {discos.map((disco) => (
                   <option key={disco.serviceID} value={disco.serviceID}>
                     {disco.name}
@@ -214,8 +216,8 @@ export default function RechargeManualFlow({
                     key={type}
                     className={`cursor-pointer rounded-lg border px-4 py-3 text-sm font-medium text-center transition-all
                       ${manualMeterType === type
-                        ? 'border-red-600 ring-2 ring-red-600/30 bg-red-50 text-red-700'
-                        : 'border-border hover:border-red-400'
+                        ? 'border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_rgba(16,42,42,0.16)]'
+                        : 'border-border bg-white/35 hover:border-primary/40'
                       }`}
                   >
                     <input
@@ -259,7 +261,7 @@ export default function RechargeManualFlow({
             {commissionLoading && (
               <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-muted-foreground text-sm">
                 <Spinner className="size-4" />
-                Checking current meter rates...
+                Getting your total...
               </div>
             )}
 
@@ -276,7 +278,7 @@ export default function RechargeManualFlow({
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={isVerifying || commissionLoading}>
-                {!isVerified ? (isVerifying ? 'Verifying...' : 'Verify') : commissionLoading ? 'Checking rates...' : 'Recharge Now'}
+                {!isVerified ? (isVerifying ? 'Verifying...' : 'Verify') : commissionLoading ? 'Getting total...' : 'Recharge Now'}
               </Button>
             </div>
           </form>
@@ -286,7 +288,7 @@ export default function RechargeManualFlow({
       <RechargeConfirmationModal
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onRechargeComplete={onClose}
+        onRechargeComplete={onRechargeComplete}
         rechargeTarget={confirmationTarget}
         meterTotalFees={meterTotalFees}
       />

@@ -31,6 +31,14 @@ interface RechargeMonthOption {
     label: string;
 }
 
+const quickFilters = [
+    { value: 'all', label: 'All Time' },
+    { value: 'this-month', label: 'This Month' },
+    { value: 'last-3-months', label: 'Last 3 Months' },
+    { value: 'this-year', label: 'This Year' },
+    { value: 'custom', label: 'Custom Range' },
+];
+
 
 export default function MeterDetailPageClient({ meterDetails, totalRecharged, monthlyAnalytics, lastRecharge, recharges, monthOptions, selectedPeriod, fromDate, toDate, currentPage, totalPages }: { meterDetails: MeterInterface, totalRecharged: TotalRecharged, monthlyAnalytics: Record<string, number>, lastRecharge: Record<string, string>, recharges: RechargeRecord[], monthOptions: RechargeMonthOption[], selectedPeriod: string, fromDate?: string, toDate?: string, currentPage: number, totalPages: number }) {
     const router = useRouter();
@@ -47,13 +55,15 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
     const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
     useEffect(() => {
-        setPeriod(selectedPeriod || 'all');
-        setCustomFrom(fromDate ?? '');
-        setCustomTo(toDate ?? '');
+        queueMicrotask(() => {
+            setPeriod(selectedPeriod || 'all');
+            setCustomFrom(fromDate ?? '');
+            setCustomTo(toDate ?? '');
+        });
     }, [selectedPeriod, fromDate, toDate]);
 
     useEffect(() => {
-        setIsTableLoading(false);
+        queueMicrotask(() => setIsTableLoading(false));
     }, [recharges, currentPage, selectedPeriod, fromDate, toDate]);
 
     useEffect(() => {
@@ -63,14 +73,6 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
             }
         };
     }, []);
-
-    const quickFilters = [
-        { value: 'all', label: 'All Time' },
-        { value: 'this-month', label: 'This Month' },
-        { value: 'last-3-months', label: 'Last 3 Months' },
-        { value: 'this-year', label: 'This Year' },
-        { value: 'custom', label: 'Custom Range' },
-    ];
 
     const filters = useMemo(() => [...quickFilters, ...monthOptions], [monthOptions]);
 
@@ -157,9 +159,24 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
     const tableIsLoading = isTableLoading || isPending;
 
     return (
-        <div className="bg-background min-h-screen">
+        <div className="min-h-screen">
 
-            <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+            <main className="app-container">
+                <section className="app-hero-panel mb-8">
+                    <div className="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">Meter insights</p>
+                            <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">{meterDetails.name}</h1>
+                            <p className="mt-4 max-w-2xl text-sm leading-6 text-primary-foreground/70 sm:text-base">
+                                Monthly totals, average payment, latest payment, and saved history.
+                            </p>
+                        </div>
+                        <Button className="gap-2 bg-accent text-accent-foreground hover:bg-[#f7cb72]" onClick={() => setIsRechargeModalOpen(true)}>
+                            <Zap className="w-4 h-4" />
+                            Pay or top up
+                        </Button>
+                    </div>
+                </section>
                 {/* Quick Stats at Top */}
                 <div className="gap-6 grid md:grid-cols-3 mb-8">
                     <Card className="p-6 border border-border">
@@ -171,12 +188,12 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                         {/* <p className="mt-2 text-muted-foreground text-base">{meterData.type}</p> */}
                     </Card>
                     <Card className="bg-linear-to-br from-primary/5 to-primary/10 p-6 border border-border">
-                        <p className="mb-2 text-muted-foreground text-sm">Total Recharged</p>
+                        <p className="mb-2 text-muted-foreground text-sm">Total paid</p>
                         <p className="font-bold text-foreground text-3xl">₦{totalRecharged.totalAmount.toLocaleString()}</p>
                     </Card>
 
                     <Card className="bg-linear-to-br from-accent/5 to-accent/10 p-6 border border-border">
-                        <p className="mb-2 text-muted-foreground text-sm">Total Recharges</p>
+                        <p className="mb-2 text-muted-foreground text-sm">Total payments</p>
                         <p className="font-bold text-foreground text-3xl">{totalRecharged.totalCount}</p>
                     </Card>
                 </div>
@@ -186,7 +203,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                     <Card className="p-6 border border-border">
                         <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
                             <Calendar className="w-5 h-5 text-primary" />
-                            Monthly Analytics
+                            Monthly view
                         </h3>
                         <div className="space-y-3 max-h-58 overflow-y-auto custom-scrollbar">
                             {Object.keys(monthlyAnalytics).length > 0 ? (
@@ -207,19 +224,19 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                     <Card className="p-6 border border-border">
                         <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
                             <Zap className="w-5 h-5 text-primary" />
-                            Quick Stats
+                            Quick stats
                         </h3>
                         <div className="space-y-3">
                             <div className="flex justify-between items-center py-2 border-border border-b">
-                                <span className="text-muted-foreground">Average Recharge</span>
+                                <span className="text-muted-foreground">Average payment</span>
                                 <span className="font-semibold text-foreground">{totalRecharged.totalCount > 0 ? `₦${Math.round(totalRecharged.totalAmount / totalRecharged.totalCount).toLocaleString()}` : 'N/A'}</span>
                             </div>
                             <div className="flex justify-between items-center py-2 border-border border-b">
-                                <span className="text-muted-foreground">Last Recharge Date</span>
+                                <span className="text-muted-foreground">Last payment date</span>
                                 <span className="font-semibold text-foreground">{lastRecharge ? formatDate(lastRecharge.created_at) : 'N/A'}</span>
                             </div>
                             <div className="flex justify-between items-center py-2">
-                                <span className="text-muted-foreground">Last Recharge Amount</span>
+                                <span className="text-muted-foreground">Last payment amount</span>
                                 <span className="font-semibold text-foreground">{lastRecharge ? `₦${Number(lastRecharge.amount).toLocaleString()}` : 'N/A'}</span>
                             </div>
                         </div>
@@ -229,9 +246,9 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                 {/* Recharge History Section */}
                 <div id="recharge-history" className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="font-bold text-foreground text-2xl">Recharge History</h2>
+                        <h2 className="font-bold text-foreground text-2xl">Payment History</h2>
                         <p className="mt-1 text-muted-foreground text-sm">
-                            View all your recharges and tokens
+                            View payments, units, and saved prepaid tokens.
                             {tableIsLoading && (
                                 <span className="inline-flex items-center gap-1 ml-2 text-primary">
                                     <Spinner className="size-3" />
@@ -245,7 +262,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                             value={period}
                             onChange={(e) => handlePeriodChange(e.target.value)}
                             disabled={tableIsLoading}
-                            className="bg-background px-4 py-2 border border-border rounded-md text-foreground text-sm"
+                            className="min-h-11 rounded-xl border border-border bg-white/45 px-4 py-2 text-sm text-foreground"
                         >
                             {filters.map((filter) => (
                                 <option key={filter.value} value={filter.value}>
@@ -255,7 +272,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                         </select>
                         <Button className="gap-2" onClick={() => setIsRechargeModalOpen(true)}>
                             <Zap className="w-4 h-4" />
-                            Recharge Meter
+                            Pay or top up
                         </Button>
                     </div>
                 </div>
@@ -270,7 +287,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                                     type="date"
                                     value={customFrom}
                                     onChange={(e) => setCustomFrom(e.target.value)}
-                                    className="bg-background px-3 py-2 border border-border rounded-md w-full text-foreground text-sm"
+                                    className="min-h-11 rounded-xl border border-border bg-white/45 px-3 py-2 text-sm text-foreground"
                                 />
                             </div>
                             <div className="w-full sm:w-auto">
@@ -280,7 +297,7 @@ export default function MeterDetailPageClient({ meterDetails, totalRecharged, mo
                                     type="date"
                                     value={customTo}
                                     onChange={(e) => setCustomTo(e.target.value)}
-                                    className="bg-background px-3 py-2 border border-border rounded-md w-full text-foreground text-sm"
+                                    className="min-h-11 rounded-xl border border-border bg-white/45 px-3 py-2 text-sm text-foreground"
                                 />
                             </div>
                             <Button onClick={applyCustomRange} disabled={!customFrom || !customTo || customFrom > customTo || tableIsLoading}>
