@@ -3,6 +3,7 @@ import { MeterInterface } from './meter-types';
 export interface TransactionHistoryItem {
   id: string;
   meter_id: string | null;
+  meter?: { name: string | null } | { name: string | null }[] | null;
   meter_number: string | null;
   user_amount: number | string;
   total_amount: number | string;

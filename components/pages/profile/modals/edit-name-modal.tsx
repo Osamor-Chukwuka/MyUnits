@@ -20,9 +20,12 @@ interface EditNameModalProps {
 export default function EditNameModal({ isOpen, onClose, profile }: EditNameModalProps) {
   const [firstName, setFirstName] = useState(profile.firstName);
   const [lastName, setLastName] = useState(profile.lastName);
-  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; general?: string }>({});
+  const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber);
+  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; phoneNumber?: string; general?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
+
+  const normalizedPhoneNumber = phoneNumber.replace(/\s+/g, '').trim();
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +34,8 @@ export default function EditNameModal({ isOpen, onClose, profile }: EditNameModa
     const newErrors: typeof errors = {};
     if (!firstName.trim()) newErrors.firstName = 'First name is required';
     if (!lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!normalizedPhoneNumber) newErrors.phoneNumber = 'Phone number is required';
+    else if (!/^\+?\d{10,15}$/.test(normalizedPhoneNumber)) newErrors.phoneNumber = 'Enter a valid phone number';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -39,7 +44,11 @@ export default function EditNameModal({ isOpen, onClose, profile }: EditNameModa
 
     setIsSaving(true);
 
-    const { ok, message } = await editUserAction({ first_name: firstName, last_name: lastName });
+    const { ok, message } = await editUserAction({
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      phone_number: normalizedPhoneNumber,
+    });
 
     if (ok) {
       toast.success(message || 'Profile updated successfully');
@@ -56,8 +65,8 @@ export default function EditNameModal({ isOpen, onClose, profile }: EditNameModa
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Name</DialogTitle>
-          <DialogDescription>Update your display name.</DialogDescription>
+          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogDescription>Update your account details.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4">
           <div>
@@ -77,6 +86,17 @@ export default function EditNameModal({ isOpen, onClose, profile }: EditNameModa
               onChange={(e) => { setLastName(e.target.value); setErrors((p) => ({ ...p, lastName: undefined })); }}
             />
             {errors.lastName && <p className="mt-1 text-destructive text-xs">{errors.lastName}</p>}
+          </div>
+          <div>
+            <Label htmlFor="edit-phone-number" className="text-xs text-muted-foreground">Phone Number</Label>
+            <Input
+              id="edit-phone-number"
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => { setPhoneNumber(e.target.value); setErrors((p) => ({ ...p, phoneNumber: undefined })); }}
+            />
+            <p className="mt-1 text-muted-foreground text-xs">We use this for your electricity recharge requests.</p>
+            {errors.phoneNumber && <p className="mt-1 text-destructive text-xs">{errors.phoneNumber}</p>}
           </div>
           {errors.general && <p className="mt-1 text-destructive text-xs text-center">{errors.general}</p>}
           <DialogFooter>

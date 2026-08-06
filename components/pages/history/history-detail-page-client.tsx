@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
-import { ArrowLeft, AlertTriangle, RefreshCcw } from 'lucide-react';
+import { type ReactNode, useTransition } from 'react';
+import { AlertTriangle, CalendarDays, Gauge, ReceiptText, RefreshCcw, ShieldCheck, WalletCards, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -14,6 +13,96 @@ import { TransactionHistoryDetail } from '@/types/history-types';
 
 function formatAmount(value: number | string) {
   return `NGN ${Number(value).toLocaleString()}`;
+}
+
+type DetailRowProps = {
+  label: string;
+  value: string;
+  breakValue?: boolean;
+};
+
+function DetailRow({ label, value, breakValue }: DetailRowProps) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-b-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className={`text-right text-sm font-semibold text-foreground ${breakValue ? 'break-all' : ''}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+type SummaryCardProps = {
+  label: string;
+  value: string;
+  helper?: string;
+  icon: ReactNode;
+  featured?: boolean;
+};
+
+function SummaryCard({ label, value, helper, icon, featured }: SummaryCardProps) {
+  return (
+    <Card
+      className={`relative overflow-hidden p-6 shadow-[0_22px_70px_rgba(18,26,24,0.08)] backdrop-blur-xl ${
+        featured ? 'border-primary/25 bg-card/95 text-foreground ring-1 ring-primary/10' : 'border-primary/10 bg-card/80'
+      }`}
+    >
+      <div
+        className={`absolute -right-8 -top-10 size-28 rounded-full blur-2xl ${
+          featured ? 'bg-accent/15' : 'bg-accent/25'
+        }`}
+        aria-hidden="true"
+      />
+      {featured && <div className="absolute inset-y-5 left-0 w-1.5 rounded-r-full bg-primary" aria-hidden="true" />}
+      <div className="relative z-10 flex items-start justify-between gap-4">
+        <div>
+          <p className={`text-sm font-semibold ${featured ? 'text-primary' : 'text-muted-foreground'}`}>
+            {label}
+          </p>
+          <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
+          {helper && (
+            <p className={`mt-3 text-sm ${featured ? 'font-semibold text-muted-foreground' : 'text-muted-foreground'}`}>
+              {helper}
+            </p>
+          )}
+        </div>
+        <div
+          className={`grid size-12 shrink-0 place-items-center rounded-2xl ${
+            featured ? 'bg-primary/10 text-primary' : 'bg-accent/35 text-primary'
+          }`}
+        >
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+type SectionPanelProps = {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  children: ReactNode;
+};
+
+function SectionPanel({ title, description, icon, children }: SectionPanelProps) {
+  return (
+    <Card className="relative overflow-hidden border-primary/10 bg-card/80 p-6 shadow-[0_22px_70px_rgba(18,26,24,0.08)] backdrop-blur-xl">
+      <div className="absolute -right-12 top-0 size-32 rounded-full bg-accent/20 blur-3xl" aria-hidden="true" />
+      <div className="relative z-10">
+        <div className="flex items-start gap-3">
+          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+            {icon}
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-foreground">{title}</h2>
+            <p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
+          </div>
+        </div>
+        <div className="mt-6">{children}</div>
+      </div>
+    </Card>
+  );
 }
 
 type HistoryDetailPageClientProps = {
@@ -27,6 +116,9 @@ export default function HistoryDetailPageClient({ historyDetail }: HistoryDetail
 
   const { transaction, meter, recharge, isManualFlow } = historyDetail;
   const canRecheck = transaction.vtpass_status === 'requery_required' && Boolean(transaction.vtpass_request_id);
+  const totalCharges = Number(transaction.total_charges);
+  const totalChargesText = Number.isNaN(totalCharges) ? formatAmount(transaction.total_charges) : formatAmount(totalCharges);
+  const meterDisplayName = meter?.name || (isManualFlow ? 'Manual flow' : 'Meter payment');
 
   const handleRecheck = async () => {
     if (!canRecheck) {
@@ -56,172 +148,141 @@ export default function HistoryDetailPageClient({ historyDetail }: HistoryDetail
         });
       }
     } catch (error) {
-      toast.error((error as Error).message || 'Failed to recheck this transaction.');
+      toast.error((error as Error).message || 'Failed to get this token.');
     }
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-5xl">
-        <div className="flex sm:flex-row flex-col sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <Link href="/history" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-              Back to History
-            </Link>
-            <h1 className="mt-3 font-bold text-foreground text-3xl">Transaction Details</h1>
-            <p className="mt-2 text-muted-foreground text-sm">
-              Review payment, VTpass, and recharge information for this transaction.
-            </p>
+    <div className="min-h-screen">
+      <main className="app-container max-w-5xl">
+        <section className="app-hero-panel mb-8 overflow-hidden">
+          <div className="relative z-10">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">Receipt</p>
+              <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">Payment Details</h1>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-primary-foreground/70 sm:text-base">
+                {meterDisplayName} payment, token information, and receipt summary in one place.
+              </p>
+            </div>
           </div>
+        </section>
 
-          <div className="flex flex-wrap gap-2">
-            {canRecheck && (
-              <Button onClick={handleRecheck} disabled={isPending} className="gap-2">
-                <RefreshCcw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
-                {isPending ? 'Rechecking...' : 'Re-check'}
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="gap-2 bg-transparent"
-              disabled={isDisputePending}
-              onClick={() => void 0}
-            >
-              <AlertTriangle className="w-4 h-4" />
-              Raise Dispute
+        <div className="mb-8 flex flex-wrap justify-end gap-2">
+          {canRecheck && (
+            <Button onClick={handleRecheck} disabled={isPending} className="gap-2">
+              <RefreshCcw className={`size-4 ${isPending ? 'animate-spin' : ''}`} aria-hidden="true" />
+              {isPending ? 'Getting token...' : 'Get token'}
             </Button>
-          </div>
+          )}
+          <Button
+            variant="outline"
+            className="gap-2 bg-card/80"
+            disabled={isDisputePending}
+            onClick={() => void 0}
+          >
+            <AlertTriangle className="size-4" aria-hidden="true" />
+            Get help
+          </Button>
         </div>
 
-        <div className="gap-6 grid md:grid-cols-3 mb-8">
-          <Card className="p-6 border border-border">
-            <p className="text-muted-foreground text-sm">Recharge Amount</p>
-            <p className="mt-2 font-bold text-foreground text-3xl">{formatAmount(transaction.user_amount)}</p>
-          </Card>
-          <Card className="p-6 border border-border">
-            <p className="text-muted-foreground text-sm">Total Paid</p>
-            <p className="mt-2 font-bold text-foreground text-3xl">{formatAmount(transaction.total_amount)}</p>
-          </Card>
-          <Card className="p-6 border border-border">
-            <p className="text-muted-foreground text-sm">Transaction Date</p>
-            <p className="mt-2 font-semibold text-foreground text-base">{formatDateTime(transaction.created_at)}</p>
-          </Card>
+        <div className="mb-8 grid gap-5 md:grid-cols-3">
+          <SummaryCard
+            label="Recharge amount"
+            value={formatAmount(transaction.user_amount)}
+            helper="Amount sent to the meter"
+            icon={<WalletCards className="size-5" aria-hidden="true" />}
+          />
+          <SummaryCard
+            label="Total paid (includes charges)"
+            value={formatAmount(transaction.total_amount)}
+            helper={`+ ${totalChargesText} charges`}
+            icon={<ReceiptText className="size-5" aria-hidden="true" />}
+            featured
+          />
+          <SummaryCard
+            label="Transaction date"
+            value={formatDateTime(transaction.created_at)}
+            helper="Saved in your history"
+            icon={<CalendarDays className="size-5" aria-hidden="true" />}
+          />
         </div>
 
-        <div className="gap-6 grid lg:grid-cols-2">
-          <Card className="p-6 border border-border">
-            <h2 className="font-semibold text-foreground text-lg">Payment Status</h2>
-            <div className="flex flex-wrap gap-2 mt-4">
-              <HistoryStatusBadge label="Paystack" status={transaction.paystack_status} />
-              <HistoryStatusBadge label="VTpass" status={transaction.vtpass_status} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SectionPanel
+            title="Payment status"
+            description="A simple view of where the payment and token currently stand."
+            icon={<ShieldCheck className="size-5" aria-hidden="true" />}
+          >
+            <div className="flex flex-wrap gap-2">
+              <HistoryStatusBadge label="Payment" status={transaction.paystack_status} />
+              <HistoryStatusBadge label="Token" status={transaction.vtpass_status} />
             </div>
 
-            <div className="space-y-3 mt-6">
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Paystack Reference</span>
-                <span className="font-medium text-foreground text-sm text-right">{transaction.paystack_reference}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">VTpass Request ID</span>
-                <span className="font-medium text-foreground text-sm text-right">{transaction.vtpass_request_id || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Total Charges</span>
-                <span className="font-medium text-foreground text-sm">{formatAmount(transaction.total_charges)}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Paystack Charge</span>
-                <span className="font-medium text-foreground text-sm">{formatAmount(transaction.paystack_charge)}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Total Commission</span>
-                <span className="font-medium text-foreground text-sm">{formatAmount(transaction.total_commission)}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">VTpass Commission</span>
-                <span className="font-medium text-foreground text-sm">
-                  {transaction.vtpass_commission == null ? 'N/A' : formatAmount(transaction.vtpass_commission)}
-                </span>
-              </div>
+            <div className="mt-6 rounded-3xl border border-border/70 bg-background/55 px-4">
+              <DetailRow label="Payment reference" value={transaction.paystack_reference} breakValue />
+              <DetailRow label="Token reference" value={transaction.vtpass_request_id || 'N/A'} breakValue />
+              <DetailRow label="Total charges" value={totalChargesText} />
             </div>
-          </Card>
+          </SectionPanel>
 
-          <Card className="p-6 border border-border">
-            <h2 className="font-semibold text-foreground text-lg">Meter Details</h2>
+          <SectionPanel
+            title="Meter details"
+            description="The meter connected to this payment."
+            icon={<Gauge className="size-5" aria-hidden="true" />}
+          >
             {meter ? (
-              <div className="space-y-3 mt-6">
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Meter Name</span>
-                  <span className="font-medium text-foreground text-sm text-right">{meter.name}</span>
+              <div className="rounded-3xl border border-border/70 bg-background/55 px-4">
+                <DetailRow label="Meter name" value={meter.name} />
+                <DetailRow label="Meter number" value={meter.meter_number} />
+                <DetailRow label="Service area" value={meter.disco} />
+                <DetailRow label="Meter type" value={meter.type} />
+                <DetailRow label="Customer name" value={meter.customer_name || 'N/A'} />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <HistoryStatusBadge label="Flow" status={isManualFlow ? 'manual' : 'unsaved'} />
+                <p className="rounded-3xl border border-border/70 bg-background/55 p-4 text-sm leading-6 text-muted-foreground">
+                  {isManualFlow
+                    ? 'This payment was made without saving the meter first.'
+                    : 'This meter record is not available right now.'}
+                </p>
+                <div className="rounded-3xl border border-border/70 bg-background/55 px-4">
+                  <DetailRow label="Meter number" value={transaction.meter_number || 'N/A'} />
                 </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Meter Number</span>
-                  <span className="font-medium text-foreground text-sm text-right">{meter.meter_number}</span>
+              </div>
+            )}
+          </SectionPanel>
+        </div>
+
+        <div className="mt-6">
+          <SectionPanel
+            title="Token details"
+            description="Token and unit information for this recharge."
+            icon={<Zap className="size-5" aria-hidden="true" />}
+          >
+            {recharge ? (
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_1.2fr]">
+                <div className="rounded-3xl border border-border/70 bg-background/55 px-4">
+                  <DetailRow label="Saved on" value={formatDateTime(recharge.created_at)} />
+                  <DetailRow label="Units" value={recharge.units} />
+                  <DetailRow label="Meter number" value={recharge.meter_number || 'N/A'} />
                 </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Distribution Company</span>
-                  <span className="font-medium text-foreground text-sm text-right">{meter.disco}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Meter Type</span>
-                  <span className="font-medium text-foreground text-sm text-right capitalize">{meter.type}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Customer Name</span>
-                  <span className="font-medium text-foreground text-sm text-right">{meter.customer_name || 'N/A'}</span>
+                <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5">
+                  <p className="text-sm font-semibold text-muted-foreground">Token</p>
+                  <p className="mt-3 break-all text-2xl font-bold leading-relaxed tracking-wide text-foreground">
+                    {recharge.token}
+                  </p>
                 </div>
               </div>
             ) : (
-              <div className="mt-6 space-y-4">
-                <HistoryStatusBadge label="Flow" status={isManualFlow ? 'manual' : 'unsaved'} />
-                <p className="text-muted-foreground text-sm">
-                  {isManualFlow
-                    ? 'This meter was not saved in the system. The payment was made through the manual flow.'
-                    : 'This meter record is not available in the system right now.'}
-                </p>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Meter Number</span>
-                  <span className="font-medium text-foreground text-sm text-right">{transaction.meter_number || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground text-sm">Meter ID</span>
-                  <span className="font-medium text-foreground text-sm text-right">{transaction.meter_id || 'N/A'}</span>
-                </div>
-              </div>
+              <p className="rounded-3xl border border-border/70 bg-background/55 p-5 text-sm leading-6 text-muted-foreground">
+                {transaction.vtpass_status === 'requery_required'
+                  ? 'This token is still being confirmed. Use Get token above to check again.'
+                  : 'There is no token saved for this payment yet.'}
+              </p>
             )}
-          </Card>
+          </SectionPanel>
         </div>
-
-        <Card className="mt-6 p-6 border border-border">
-          <h2 className="font-semibold text-foreground text-lg">Recharge Details</h2>
-          {recharge ? (
-            <div className="space-y-3 mt-6">
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Recharge Saved</span>
-                <span className="font-medium text-foreground text-sm text-right">{formatDateTime(recharge.created_at)}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Units</span>
-                <span className="font-medium text-foreground text-sm text-right">{recharge.units}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Token</span>
-                <span className="font-medium text-foreground text-sm text-right break-all">{recharge.token}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground text-sm">Recharge Meter Number</span>
-                <span className="font-medium text-foreground text-sm text-right">{recharge.meter_number || 'N/A'}</span>
-              </div>
-            </div>
-          ) : (
-            <p className="mt-6 text-muted-foreground text-sm">
-              {transaction.vtpass_status === 'requery_required'
-                ? 'This recharge has not been confirmed yet. Use the Re-check button above to query the latest VTpass status.'
-                : 'There is no recharge record linked to this transaction yet.'}
-            </p>
-          )}
-        </Card>
       </main>
     </div>
   );

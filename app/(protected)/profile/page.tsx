@@ -12,6 +12,7 @@ export default async function ProfilePage() {
       profile={{
         firstName: String(user.profile?.first_name ?? '').trim(),
         lastName: String(user.profile?.last_name ?? '').trim(),
+        phoneNumber: String(user.profile?.phone_number ?? '').trim(),
         email: user.email ?? 'No email address',
         userId: user.id,
         createdAt: formatDate(user.created_at),

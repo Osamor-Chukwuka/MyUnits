@@ -26,7 +26,7 @@ export async function getRechargeMeterTotalFees({
 
   const commissionDetails = data?.content?.commission_details as RechargeMeterCommission | undefined;
   if (!commissionDetails?.amount && !commissionDetails?.rate) {
-    throw new Error('Failed to retrieve meter rates: Please check the meter details and try again.');
+    throw new Error("We couldn't get the total for this recharge. Please check the meter details and try again.");
   }
 
   console.log("verify data: ", data);

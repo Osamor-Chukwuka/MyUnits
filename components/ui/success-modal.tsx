@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { X } from 'lucide-react';
 import { Button } from './button';
 
@@ -11,17 +12,13 @@ type SuccessModalProps = {
 export default function SuccessModal({ open, onClose }: SuccessModalProps) {
     if (!open) return null;
 
-    const handleOk = () => {
-        window.location.reload(); // simple page refresh
-    };
-
     return (
-        <div className="z-50 fixed inset-0 flex justify-center items-center">
+        <div className="no-scrollbar fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center">
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/50" />
 
             {/* Modal */}
-            <div className="relative bg-white shadow-xl p-6 rounded-2xl w-[90%] max-w-md">
+            <div className="no-scrollbar relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
                 {/* Close button */}
                 <Button
                     onClick={onClose}
@@ -48,19 +45,25 @@ export default function SuccessModal({ open, onClose }: SuccessModalProps) {
                     </div>
 
                     <h2 className="mt-4 font-semibold text-gray-900 text-lg">
-                        Almost there
+                        Check your inbox
                     </h2>
 
                     <p className="mt-2 text-gray-600 text-sm">
-                        Check your email to complete the signup process.
+                        If this email can be used for a new account, we have sent a verification link.
+                        If you already signed up before, try signing in instead.
                     </p>
 
-                    <Button
-                        onClick={handleOk}
-                        className="bg-green-700 hover:bg-green-800 mt-6 px-4 py-2.5 rounded-lg w-full font-semibold text-white text-sm transition-colors"
-                    >
-                        Okay
-                    </Button>
+                    <div className="mt-6 flex w-full flex-col gap-3">
+                        <Button
+                            onClick={onClose}
+                            className="bg-green-700 hover:bg-green-800 px-4 py-2.5 rounded-lg w-full font-semibold text-white text-sm transition-colors"
+                        >
+                            Okay
+                        </Button>
+                        <Button asChild variant="outline" className="w-full">
+                            <Link href="/auth/login">Go to sign in</Link>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

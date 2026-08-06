@@ -29,6 +29,7 @@ export async function GET(request: Request) {
   const { error: upsertError } = await supabase.from('users').upsert({
     first_name: user.user_metadata.first_name || '',
     last_name: user.user_metadata.last_name || '',
+    phone_number: user.user_metadata.phone_number || '',
     email: user.email,
     auth_id: user.id,
   }, { onConflict: 'auth_id' });

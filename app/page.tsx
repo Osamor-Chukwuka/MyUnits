@@ -18,22 +18,22 @@ import {
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { label: 'Tape', href: '#tape' },
-  { label: 'Desk', href: '#desk' },
-  { label: 'Records', href: '#records' },
+  { label: 'Features', href: '#features' },
+  { label: 'Insights', href: '#insights' },
+  { label: 'History', href: '#history' },
 ];
 
 const receiptTape = [
-  ['Home meter', 'NGN 18,400', 'Token ready'],
-  ['Office meter', 'NGN 27,000', 'Paid'],
-  ['Manual entry', 'AEDC', 'Delivered'],
-  ['Appliance estimate', '79.9 kWh', 'Planned'],
+  ['Home meter', 'NGN 18,400', 'Last paid'],
+  ['Shop meter', 'NGN 27,000', 'Bill paid'],
+  ['Monthly view', 'NGN 42,600', 'Tracked'],
+  ['Average payment', 'NGN 8,520', 'Insight'],
 ];
 
 const deskRows = [
-  { label: 'Provider', value: 'AEDC', icon: PlugZap },
-  { label: 'Meter type', value: 'Prepaid', icon: Gauge },
-  { label: 'Payment', value: 'Paystack', icon: WalletCards },
+  { label: 'Meter type', value: 'Prepaid or postpaid', icon: Gauge },
+  { label: 'Latest payment', value: 'Easy to check', icon: WalletCards },
+  { label: 'Saved meters', value: 'Home, office, shop', icon: Smartphone },
 ];
 
 const dialItems = [
@@ -44,34 +44,34 @@ const dialItems = [
 
 const recordItems = [
   {
-    title: 'Payment trail',
-    description: 'Payment state, provider response, token and amount live in one durable receipt.',
+    title: 'Payment history',
+    description: 'Dates, amounts, and outcomes for each meter.',
     icon: ReceiptText,
   },
   {
-    title: 'Meter memory',
-    description: 'Saved meters behave like named places, while manual recharges still stay traceable.',
+    title: 'Prepaid token records',
+    description: 'Tokens stay saved with their payment.',
     icon: Smartphone,
   },
   {
-    title: 'Recovery path',
-    description: 'Pending outcomes remain visible and re-checkable instead of disappearing after checkout.',
+    title: 'Helpful filters',
+    description: 'Check this month, this year, or any date range.',
     icon: ShieldCheck,
   },
 ];
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#0a0b12] text-[#f6efe0]">
+    <div className="min-h-screen overflow-x-hidden bg-[#102A2A] text-[#F5EBDD]">
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between border border-white/12 bg-[#0a0b12]/54 px-3 text-white shadow-[0_18px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:px-5 glass">
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between border border-white/12 bg-[#102A2A]/54 px-3 text-white shadow-[0_18px_70px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:px-5 glass">
           <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="myUnits home">
-            <span className="grid size-10 shrink-0 place-items-center border border-[#ffcf6a]/45 bg-[#ffcf6a] text-[#11100d] shadow-[0_0_30px_rgba(255,207,106,0.22)]">
+            <span className="grid size-10 shrink-0 place-items-center border border-[#F2B84B]/45 bg-[#F2B84B] text-[#102A2A] shadow-[0_0_30px_rgba(242,184,75,0.22)]">
               <Zap className="size-5" />
             </span>
             <span className="min-w-0">
               <span className="block font-semibold leading-none">myUnits</span>
-              <span className="mt-1 hidden text-xs text-white/55 sm:block">Prepaid power ledger</span>
+              <span className="mt-1 hidden text-xs text-white/55 sm:block">Prepaid and postpaid meters</span>
             </span>
           </Link>
 
@@ -93,7 +93,7 @@ export default function LandingPage() {
             </Button>
             <Button
               asChild
-              className="h-10 rounded-[8px] bg-[#ffcf6a] px-3 text-[#11100d] shadow-[0_0_28px_rgba(255,207,106,0.2)] hover:bg-[#ffdc8f] sm:px-5"
+              className="h-10 rounded-[8px] bg-[#F2B84B] px-3 text-[#102A2A] shadow-[0_0_28px_rgba(242,184,75,0.2)] hover:bg-[#F7CB72] sm:px-5"
             >
               <Link href="/auth/signup">Start</Link>
             </Button>
@@ -105,7 +105,7 @@ export default function LandingPage() {
         <section className="stage-hero relative min-h-[100dvh] overflow-hidden">
           <Image
             src="/meter-hero.jpg"
-            alt="Digital prepaid electricity meter"
+            alt="Digital electricity meter"
             fill
             priority
             sizes="100vw"
@@ -119,7 +119,7 @@ export default function LandingPage() {
             <div className="stage-bulb">
               <div className="stage-wire" />
               <div className="stage-cap">
-                <Cable className="size-4 text-[#d9d0be]" />
+                <Cable className="size-4 text-[#D6CABA]" />
               </div>
               <div className="stage-globe">
                 <div className="globe-glass" />
@@ -137,23 +137,22 @@ export default function LandingPage() {
           <div className="relative z-30 mx-auto flex min-h-[100dvh] max-w-7xl flex-col justify-end px-4 pb-6 pt-36 sm:px-6 lg:px-8">
             <div className="hero-caption mx-auto max-w-5xl text-center">
               <p className="hero-reveal mx-auto inline-flex items-center gap-2 border border-white/16 bg-white/8 px-3 py-2 text-sm text-white/72 backdrop-blur-xl glass">
-                <Lightbulb className="size-4 text-[#ffcf6a]" />
-                When the bulb comes on, the receipt is already waiting.
+                <Lightbulb className="size-4 text-[#F2B84B]" />
+                When the bulb comes on, every meter finally makes sense.
               </p>
 
               <h1 className="hero-reveal hero-reveal-1 mt-6 text-[clamp(3.25rem,9vw,9rem)] font-semibold leading-[0.9] tracking-normal text-white">
                 Power you can trace.
               </h1>
               <p className="hero-reveal hero-reveal-2 mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/74 sm:text-xl">
-                myUnits turns meter recharge into a visible trail: pay, receive a token, check status,
-                and keep proof without hunting through messages.
+                Pay or top up any meter. See spending. Keep receipts and tokens close.
               </p>
 
               <div className="hero-reveal hero-reveal-3 mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <Button
                   asChild
                   size="lg"
-                  className="h-12 rounded-[8px] bg-[#ffcf6a] px-6 text-base text-[#11100d] shadow-[0_0_42px_rgba(255,207,106,0.22)] hover:bg-[#ffdc8f]"
+                  className="h-12 rounded-[8px] bg-[#F2B84B] px-6 text-base text-[#102A2A] shadow-[0_0_42px_rgba(242,184,75,0.22)] hover:bg-[#F7CB72]"
                 >
                   <Link href="/auth/signup">
                     Create account
@@ -166,7 +165,7 @@ export default function LandingPage() {
                   variant="outline"
                   className="h-12 rounded-[8px] border-white/20 bg-white/8 px-6 text-base text-white backdrop-blur-xl hover:bg-white/14 hover:text-white"
                 >
-                  <Link href="#tape">Watch the trail</Link>
+                  <Link href="#features">See what it does</Link>
                 </Button>
               </div>
             </div>
@@ -176,16 +175,16 @@ export default function LandingPage() {
                 <div key={meter} className="min-w-0 border-b border-white/10 p-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0">
                   <p className="text-xs uppercase text-white/42">{meter}</p>
                   <p className="mt-2 text-lg font-semibold text-white">{amount}</p>
-                  <p className="mt-1 text-sm text-[#7fe1d2]">{status}</p>
+                  <p className="mt-1 text-sm text-[#D95F43]">{status}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="tape" className="relative overflow-hidden bg-[#e9ddcb] py-10 text-[#15120f]">
+        <section id="features" className="relative overflow-hidden bg-[#E7D8C3] py-10 text-[#102A2A]">
           <div className="tape-shadow absolute inset-x-0 top-0 h-12" />
-          <div className="receipt-rail whitespace-nowrap border-y border-[#15120f]/12 bg-[#f8f0df] py-5">
+          <div className="receipt-rail whitespace-nowrap border-y border-[#102A2A]/12 bg-[#F5EBDD] py-5">
             <div className="receipt-track inline-flex gap-4 px-4">
               {[...receiptTape, ...receiptTape].map(([meter, amount, status], index) => (
                 <div key={`${meter}-${index}`} className="receipt-chip">
@@ -198,13 +197,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="desk" className="relative overflow-hidden bg-[#f5ecdf] px-4 py-20 text-[#15120f] sm:px-6 sm:py-24 lg:px-8">
+        <section className="relative overflow-hidden bg-[#F5EBDD] px-4 py-20 text-[#102A2A] sm:px-6 sm:py-24 lg:px-8">
           <div className="desk-grid absolute inset-0" />
           <div className="relative mx-auto max-w-7xl">
             <div className="desk-heading">
-              <p className="text-sm font-semibold uppercase text-[#9b5139]">Operating desk</p>
+              <p className="text-sm font-semibold uppercase text-[#D95F43]">Everything in one place</p>
               <h2 className="mt-4 max-w-5xl text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
-                Not a feature grid. A desk where the meter, payment, and proof sit together.
+                Meters, payments, insights, and receipts in one clear place.
               </h2>
             </div>
 
@@ -212,7 +211,7 @@ export default function LandingPage() {
               <div className="desk-photo">
                 <Image
                   src="/meter-hero.jpg"
-                  alt="Prepaid electricity meter mounted on a wall"
+                  alt="Electricity meter mounted on a wall"
                   fill
                   sizes="(min-width: 1024px) 48vw, 100vw"
                   className="object-cover"
@@ -228,17 +227,17 @@ export default function LandingPage() {
                 <div className="desk-panel main-panel">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-xs uppercase text-[#6d6258]">Recharge cockpit</p>
+                      <p className="text-xs uppercase text-[#6d6258]">Meter summary</p>
                       <h3 className="mt-2 text-3xl font-semibold">NGN 18,400</h3>
                     </div>
-                    <span className="grid size-11 place-items-center bg-[#15120f] text-[#ffcf6a]">
+                    <span className="grid size-11 place-items-center bg-[#102A2A] text-[#F2B84B]">
                       <PlugZap className="size-5" />
                     </span>
                   </div>
                   <div className="mt-6 grid gap-3 sm:grid-cols-3">
                     {deskRows.map((row) => (
                       <div key={row.label} className="desk-cell">
-                        <row.icon className="size-5 text-[#9b5139]" />
+                        <row.icon className="size-5 text-[#D95F43]" />
                         <p className="mt-4 text-sm text-[#6d6258]">{row.label}</p>
                         <p className="mt-1 font-semibold">{row.value}</p>
                       </div>
@@ -248,8 +247,8 @@ export default function LandingPage() {
 
                 <div className="desk-panel token-panel">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#6d6258]">Token</span>
-                    <span className="text-[#137e71]">Ready</span>
+                    <span className="text-[#6d6258]">Prepaid token</span>
+                    <span className="text-[#D95F43]">Saved</span>
                   </div>
                   <p className="mt-4 text-2xl font-semibold tracking-normal">2636 2054 4059</p>
                 </div>
@@ -258,7 +257,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden bg-[#0c0d15] px-4 py-20 text-white sm:px-6 sm:py-24 lg:px-8">
+        <section id="insights" className="relative overflow-hidden bg-[#102A2A] px-4 py-20 text-white sm:px-6 sm:py-24 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div className="appliance-dial">
               <div className="dial-ring">
@@ -271,10 +270,13 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold uppercase text-[#7fe1d2]">Usage sense</p>
+              <p className="text-sm font-semibold uppercase text-[#D95F43]">Appliance cost</p>
               <h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-                Before you recharge, see what is likely draining the balance.
+                See what may be draining your units.
               </h2>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-white/68">
+                Estimate appliance spend before you pay or top up.
+              </p>
               <div className="mt-8 space-y-4">
                 {dialItems.map((item) => (
                   <div key={item.name} className="usage-row">
@@ -283,7 +285,7 @@ export default function LandingPage() {
                       <strong>{item.cost}</strong>
                     </div>
                     <div className="mt-3 h-2 overflow-hidden bg-white/10">
-                      <div className="h-full bg-[#ffcf6a]" style={{ width: item.width }} />
+                      <div className="h-full bg-[#F2B84B]" style={{ width: item.width }} />
                     </div>
                   </div>
                 ))}
@@ -292,16 +294,16 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="records" className="relative overflow-hidden bg-[#f8f0df] px-4 py-20 text-[#15120f] sm:px-6 sm:py-24 lg:px-8">
+        <section id="history" className="relative overflow-hidden bg-[#F5EBDD] px-4 py-20 text-[#102A2A] sm:px-6 sm:py-24 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
               <div>
-                <p className="text-sm font-semibold uppercase text-[#9b5139]">Records</p>
+                <p className="text-sm font-semibold uppercase text-[#D95F43]">Records</p>
                 <h2 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight tracking-normal sm:text-6xl">
-                  Receipts should hang around after the payment screen closes.
+                  Receipts and tokens that stay easy to find.
                 </h2>
               </div>
-              <Button asChild className="h-12 rounded-[8px] bg-[#15120f] px-6 text-white hover:bg-[#241f1a]">
+              <Button asChild className="h-12 rounded-[8px] bg-[#102A2A] px-6 text-white hover:bg-[#173838]">
                 <Link href="/auth/signup">
                   Save my first meter
                   <ArrowRight className="size-4" />
@@ -313,7 +315,7 @@ export default function LandingPage() {
               {recordItems.map((item, index) => (
                 <article key={item.title} className="record-slip">
                   <div className="pin" />
-                  <div className="grid size-11 place-items-center bg-[#15120f] text-[#ffcf6a]">
+                  <div className="grid size-11 place-items-center bg-[#102A2A] text-[#F2B84B]">
                     <item.icon className="size-5" />
                   </div>
                   <p className="mt-8 text-xs uppercase text-[#6d6258]">0{index + 1}</p>
@@ -325,16 +327,16 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden bg-[#ffcf6a] px-4 py-16 text-[#15120f] sm:px-6 sm:py-20 lg:px-8">
+        <section className="relative overflow-hidden bg-[#F2B84B] px-4 py-16 text-[#102A2A] sm:px-6 sm:py-20 lg:px-8">
           <div className="cta-lines absolute inset-0" />
           <div className="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase text-[#7d5130]">Start here</p>
               <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-                Recharge once. Keep the trail every time after.
+                Add a meter once. Understand every payment after.
               </h2>
             </div>
-            <Button asChild size="lg" className="h-12 rounded-[8px] bg-[#15120f] px-6 text-base text-white hover:bg-[#241f1a]">
+            <Button asChild size="lg" className="h-12 rounded-[8px] bg-[#102A2A] px-6 text-base text-white hover:bg-[#173838]">
               <Link href="/auth/signup">
                 Open myUnits
                 <ArrowRight className="size-4" />
@@ -344,12 +346,12 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 bg-[#0a0b12] px-4 py-7 sm:px-6 lg:px-8">
+      <footer className="border-t border-white/10 bg-[#102A2A] px-4 py-7 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-white/56 sm:flex-row sm:items-center sm:justify-between">
-          <p>(c) 2026 myUnits. Built for prepaid meter users.</p>
+          <p>(c) 2026 myUnits. Built for prepaid and postpaid meter users.</p>
           <div className="flex items-center gap-2">
-            <Clock3 className="size-4 text-[#ffcf6a]" />
-            <span>Clear recharge, durable records.</span>
+            <Clock3 className="size-4 text-[#F2B84B]" />
+            <span>Clear payments, useful meter history.</span>
           </div>
         </div>
       </footer>
@@ -366,7 +368,7 @@ export default function LandingPage() {
         }
 
         .stage-hero {
-          background: #010102;
+          background: #071818;
         }
 
         .stage-meter {
@@ -382,9 +384,9 @@ export default function LandingPage() {
 
         .stage-light {
           background:
-            radial-gradient(ellipse at 50% 38%, rgba(255,207,106,0.68), rgba(255,207,106,0.25) 23%, transparent 60%),
-            radial-gradient(circle at 82% 70%, rgba(127,225,210,0.2), transparent 24%),
-            radial-gradient(circle at 18% 72%, rgba(155,81,57,0.18), transparent 24%),
+            radial-gradient(ellipse at 50% 38%, rgba(242,184,75,0.68), rgba(242,184,75,0.25) 23%, transparent 60%),
+            radial-gradient(circle at 82% 70%, rgba(217,95,67,0.2), transparent 24%),
+            radial-gradient(circle at 18% 72%, rgba(245,235,221,0.13), transparent 24%),
             linear-gradient(90deg, rgba(1,1,2,0.72), transparent 50%, rgba(1,1,2,0.56));
           opacity: 0;
           animation: roomGlow 3900ms cubic-bezier(.2,.8,.2,1) 6100ms both;
@@ -392,8 +394,8 @@ export default function LandingPage() {
 
         .stage-texture {
           background-image:
-            linear-gradient(rgba(255,207,106,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(127,225,210,0.06) 1px, transparent 1px);
+            linear-gradient(rgba(242,184,75,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(217,95,67,0.06) 1px, transparent 1px);
           background-size: 86px 86px;
           mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 78%);
           opacity: 0;
@@ -414,7 +416,7 @@ export default function LandingPage() {
           top: 0;
           width: 2px;
           height: 20.5rem;
-          background: linear-gradient(#050506, #7e7667);
+          background: linear-gradient(#071818, #44605C);
           transform: translateX(-50%);
         }
 
@@ -450,7 +452,7 @@ export default function LandingPage() {
           background:
             radial-gradient(circle at 42% 25%, rgba(255,255,255,0.32), transparent 17%),
             linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.025));
-          box-shadow: inset 0 0 24px rgba(255,255,255,0.08), 0 0 0 rgba(255,207,106,0);
+          box-shadow: inset 0 0 24px rgba(255,255,255,0.08), 0 0 0 rgba(242,184,75,0);
           clip-path: path('M 10 42 C 10 17 27 2 61 2 C 95 2 112 17 112 42 C 112 69 94 79 83 91 C 77 98 77 107 45 107 C 45 97 45 98 39 91 C 27 78 10 69 10 42 Z');
           animation: glassWake 3500ms ease-out 5700ms both;
         }
@@ -462,7 +464,7 @@ export default function LandingPage() {
           width: 3rem;
           height: 3rem;
           border-radius: 999px;
-          background: #ffcf6a;
+          background: #F2B84B;
           filter: blur(13px);
           opacity: 0;
           transform: translateX(-50%);
@@ -475,11 +477,11 @@ export default function LandingPage() {
           top: 4.85rem;
           width: 3.35rem;
           height: 1.45rem;
-          border: 3px solid #ffcf6a;
+          border: 3px solid #F2B84B;
           border-top: 0;
           opacity: 0;
           transform: translateX(-50%);
-          filter: drop-shadow(0 0 14px rgba(255,207,106,0.72));
+          filter: drop-shadow(0 0 14px rgba(242,184,75,0.72));
           border-radius: 0 0 999px 999px;
           animation: filamentWake 3550ms ease-out 6050ms both;
         }
@@ -490,7 +492,7 @@ export default function LandingPage() {
           top: 26.2rem;
           width: min(56rem, 106vw);
           height: 43rem;
-          background: radial-gradient(ellipse at top, rgba(255,207,106,0.34), rgba(255,207,106,0.13) 28%, transparent 68%);
+          background: radial-gradient(ellipse at top, rgba(242,184,75,0.34), rgba(242,184,75,0.13) 28%, transparent 68%);
           filter: blur(24px);
           opacity: 0;
           transform: translateX(-50%) scaleY(0.68);
@@ -564,14 +566,14 @@ export default function LandingPage() {
 
         .receipt-chip em {
           margin-top: 0.2rem;
-          color: #137e71;
+          color: #D95F43;
           font-style: normal;
         }
 
         .desk-grid {
           background-image:
-            linear-gradient(rgba(155,81,57,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(19,126,113,0.08) 1px, transparent 1px);
+            linear-gradient(rgba(217,95,67,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(16,42,42,0.08) 1px, transparent 1px);
           background-size: 76px 76px;
           mask-image: linear-gradient(90deg, rgba(0,0,0,0.52), transparent 78%);
         }
@@ -613,7 +615,7 @@ export default function LandingPage() {
         }
 
         .desk-cell {
-          background: #ede2d0;
+          background: #EADCC9;
           padding: 1rem;
         }
 
@@ -630,8 +632,8 @@ export default function LandingPage() {
           place-items: center;
           border-radius: 999px;
           background:
-            conic-gradient(from 210deg, #ffcf6a 0 62%, rgba(255,255,255,0.1) 62% 100%),
-            radial-gradient(circle, rgba(127,225,210,0.16), transparent 62%);
+            conic-gradient(from 210deg, #F2B84B 0 62%, rgba(255,255,255,0.1) 62% 100%),
+            radial-gradient(circle, rgba(217,95,67,0.16), transparent 62%);
           box-shadow: 0 28px 100px rgba(0,0,0,0.34);
         }
 
@@ -696,8 +698,8 @@ export default function LandingPage() {
           width: 0.7rem;
           height: 0.7rem;
           border-radius: 999px;
-          background: #9b5139;
-          box-shadow: 0 0 0 0.35rem rgba(155,81,57,0.12);
+          background: #D95F43;
+          box-shadow: 0 0 0 0.35rem rgba(217,95,67,0.12);
         }
 
         .cta-lines {
@@ -761,10 +763,10 @@ export default function LandingPage() {
 
         @keyframes glassWake {
           from {
-            box-shadow: inset 0 0 24px rgba(255,255,255,0.08), 0 0 0 rgba(255,207,106,0);
+            box-shadow: inset 0 0 24px rgba(255,255,255,0.08), 0 0 0 rgba(242,184,75,0);
           }
           to {
-            box-shadow: inset 0 0 28px rgba(255,255,255,0.12), 0 0 42px rgba(255,207,106,0.34);
+            box-shadow: inset 0 0 28px rgba(255,255,255,0.12), 0 0 42px rgba(242,184,75,0.34);
           }
         }
 
@@ -924,8 +926,8 @@ export default function LandingPage() {
 function CircleGaugeIcon() {
   return (
     <div className="relative grid size-20 place-items-center rounded-full border border-white/18">
-      <div className="absolute inset-3 rounded-full border border-[#ffcf6a]/50" />
-      <div className="h-8 w-1 origin-bottom rotate-45 bg-[#ffcf6a]" />
+      <div className="absolute inset-3 rounded-full border border-[#F2B84B]/50" />
+      <div className="h-8 w-1 origin-bottom rotate-45 bg-[#F2B84B]" />
     </div>
   );
 }

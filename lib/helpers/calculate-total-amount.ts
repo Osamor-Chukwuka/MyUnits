@@ -1,8 +1,10 @@
 import { MeterTotalFees, RechargeMeterCommission } from "@/types/meter-types";
 
 export const calculateTotalAmount = (amount: number, meterCommission: RechargeMeterCommission | null): MeterTotalFees => {
-    //check if paystack charged the bussiness or the customer. If it is the customer, remove paystack fee from total amount
-    const chargePaystackToCustomer = process.env.PAYSTACK_CHARGE_USER === 'true';
+    // This helper is used in client-side recharge flows, so the public env var
+    // must be available in the browser bundle as well.
+    const chargePaystackToCustomer =
+        (process.env.NEXT_PUBLIC_PAYSTACK_CHARGE_USER ?? process.env.PAYSTACK_CHARGE_USER) === 'true';
 
     //1. Get paystack fee
     let fee = 0.015 * amount;
@@ -20,7 +22,7 @@ export const calculateTotalAmount = (amount: number, meterCommission: RechargeMe
         vtpassCommission = typeof meterCommission.amount === 'string' ? parseFloat(meterCommission.amount) : meterCommission.amount;
     }
     else if (meterCommission?.rate) {
-        let rate = parseFloat(meterCommission.rate);
+        const rate = parseFloat(meterCommission.rate);
         if (meterCommission.rate_type === 'percent') {
             vtpassCommission = (rate / 100) * amount;
         }

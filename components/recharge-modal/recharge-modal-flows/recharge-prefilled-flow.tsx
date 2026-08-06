@@ -11,10 +11,11 @@ import RechargeModalShell from '../sub-components/recharge-modal-shell';
 
 interface RechargePrefilledFlowProps {
   onClose: () => void;
+  onRechargeComplete?: () => void | Promise<void>;
   meter: MeterInterface;
 }
 
-export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefilledFlowProps) {
+export default function RechargePrefilledFlow({ onClose, onRechargeComplete, meter }: RechargePrefilledFlowProps) {
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -84,7 +85,7 @@ export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefil
                 <span className="font-semibold text-foreground text-sm">{meter.meter_number}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground text-sm">Distribution Company</span>
+                <span className="text-muted-foreground text-sm">Service area</span>
                 <span className="font-semibold text-foreground text-sm">{meter.disco}</span>
               </div>
               <div className="flex justify-between items-center">
@@ -112,7 +113,7 @@ export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefil
             {commissionLoading && (
               <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-muted-foreground text-sm">
                 <Spinner className="size-4" />
-                Checking current meter rates...
+                Getting your total...
               </div>
             )}
 
@@ -123,7 +124,7 @@ export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefil
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={commissionLoading}>
-                {commissionLoading ? 'Checking rates...' : 'Recharge Now'}
+                {commissionLoading ? 'Getting total...' : 'Recharge Now'}
               </Button>
             </div>
           </form>
@@ -133,7 +134,7 @@ export default function RechargePrefilledFlow({ onClose, meter }: RechargePrefil
       <RechargeConfirmationModal
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onRechargeComplete={onClose}
+        onRechargeComplete={onRechargeComplete}
         rechargeTarget={rechargeTarget}
         meterTotalFees={meterTotalFees}
       />

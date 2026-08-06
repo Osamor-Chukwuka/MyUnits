@@ -17,6 +17,7 @@ import { MeterTotalFees } from '@/types/meter-types';
 import { initializePaystack, rechargeMeterWithVtPass, saveRechargeToDB, saveTransactionToDB, updateTransactionStatus, verifyPaystackPayment } from '@/app/actions/payment-actions';
 import RechargeResultModal, { RechargeResultPayload, normalizeRechargeResultStatus } from './recharge-result-modal';
 import { VtPassRechargeResult } from '@/lib/helpers/vtpass-recharge-helper';
+import { sendMeterTokenEmailAction } from '@/app/actions/email-actions';
 
 type PaystackPopupResult =
   | {
@@ -39,7 +40,7 @@ export interface RechargeConfirmationTarget {
 interface RechargeConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onRechargeComplete?: () => void;
+  onRechargeComplete?: () => void | Promise<void>;
   rechargeTarget: RechargeConfirmationTarget | null;
   meterTotalFees?: MeterTotalFees | null;
 }
@@ -48,7 +49,6 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
   const { isOpen, onClose, onRechargeComplete, rechargeTarget, meterTotalFees } = props;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
-  const [transactionId, setTransactionId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [rechargeResult, setRechargeResult] = useState<RechargeResultPayload | null>(null);
 
@@ -73,13 +73,13 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
     });
   };
 
-  const handleResultClose = () => {
+  const handleResultClose = async () => {
     const normalizedStatus = normalizeRechargeResultStatus(rechargeResult?.status);
     setRechargeResult(null);
 
     if (normalizedStatus === 'success') {
       if (onRechargeComplete) {
-        onRechargeComplete();
+        await onRechargeComplete();
         return;
       }
 
@@ -168,7 +168,7 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
       //step 3: verify payment after the popup reports success
       setRechargeResult({
         status: 'processing',
-        message: 'Finalizing your payment and recharge. Please wait.',
+        message: 'Please wait while we complete your recharge.',
       });
 
       const paymentReference = popupResult.reference || reference;
@@ -184,8 +184,6 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
           meterTotalFees: meterTotalFees || null,
           paymentStatus,
         });
-        setTransactionId(transactionId);
-
         //payment successful, call VT pass to recharge meter
         const rechargeResult = await rechargeMeter(transactionId);
         //return recharge result to be shown in the UI
@@ -206,10 +204,18 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
   //recharge meter with VT pass
   const rechargeMeter = async (transactionId: string | null): Promise<RechargeResultPayload> => {
     let rechargeResult: VtPassRechargeResult | null = null;
+    const amount = meterTotalFees?.amount;
+
+    if (!rechargeTarget?.disco || !rechargeTarget.meterNumber || !rechargeTarget.meterType || amount == null) {
+      return {
+        status: 'failed',
+        message: 'Please check the meter details and amount, then try again.',
+      };
+    }
 
     try {
       //recharge meter logic goes here
-      rechargeResult = await rechargeMeterWithVtPass(rechargeTarget?.disco!, rechargeTarget?.meterNumber!, rechargeTarget?.meterType!, meterTotalFees?.amount!, '08104668125'); // replace with actual phone number
+      rechargeResult = await rechargeMeterWithVtPass(rechargeTarget.disco, rechargeTarget.meterNumber, rechargeTarget.meterType, amount);
 
       await updateTransactionStatus(transactionId, rechargeResult.status, rechargeResult.requestId);
     } catch (error) {
@@ -226,8 +232,8 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
 
 
 
-    //save recharge result to DB and send email with meter token
 
+    // handle recharge result
     if (!rechargeResult) {
       return {
         status: 'failed',
@@ -238,7 +244,7 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
     if (rechargeResult.status === 'requery_required') {
       return {
         status: 'requery_required',
-        message: 'We could not confirm this recharge yet. Please go to Recharge History and click the Requery button to check the final status.',
+        message: 'We could not confirm this recharge yet. Please check your payment history and tap Get token again shortly.',
       };
     }
 
@@ -254,16 +260,74 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
       transactionId,
       rechargeTarget,
       rechargeResult,
-      amount: meterTotalFees?.amount!
+      amount,
+    });
+
+    // Send the email as a nice-to-have only. The recharge already succeeded, so
+    // email delivery should never turn a successful recharge into a failed one.
+    const emailSent = await sendTokenEmail({
+      transactionId,
+      rechargeResult,
+      amount,
     });
 
     //return recharge result
     return {
       status: 'success',
-      message: 'Recharge successful. Your meter token has been sent to your registered email.',
+      message: emailSent
+        ? 'Recharge successful. Your meter token has been sent to your registered email.'
+        : 'Recharge successful. Your token is ready below.',
       meterToken: rechargeResult?.token || null,
     };
   };
+
+  async function sendTokenEmail({
+    transactionId,
+    rechargeResult,
+    amount,
+  }: {
+    transactionId: string | null;
+    rechargeResult: VtPassRechargeResult;
+    amount: number;
+  }) {
+    try {
+      const emailResult = await sendMeterTokenEmailAction({
+        meterName: rechargeTarget?.name,
+        meterNumber: rechargeTarget?.meterNumber ?? '',
+        token: rechargeResult.token ?? '',
+        units: rechargeResult.units ?? '',
+        amount,
+        charges: meterTotalFees?.totalCharges,
+        transactionDate: new Date(),
+        idempotencyKey: getTokenEmailIdempotencyKey(transactionId, rechargeResult.requestId),
+      });
+
+      if (!emailResult.ok) {
+        console.error('Meter token email was not sent.', {
+          transactionId,
+          requestId: rechargeResult.requestId,
+          message: emailResult.message,
+        });
+      }
+
+      return emailResult.ok;
+    } catch (error) {
+      console.error('Meter token email failed after recharge success.', {
+        transactionId,
+        requestId: rechargeResult.requestId,
+        error,
+      });
+
+      return false;
+    }
+  }
+
+  function getTokenEmailIdempotencyKey(transactionId: string | null, requestId?: string) {
+    if (transactionId) return `meter-token-${transactionId}`;
+    if (requestId) return `meter-token-${requestId}`;
+
+    return undefined;
+  }
 
   return (
     <>
@@ -295,7 +359,7 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
                   <span className="font-semibold text-foreground text-sm">{rechargeTarget.meterNumber}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">Distribution Company</span>
+                  <span className="text-muted-foreground text-sm">Service area</span>
                   <span className="font-semibold text-foreground text-sm">{rechargeTarget.disco}</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -328,7 +392,7 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
               {isSubmitting && (
                 <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-muted-foreground text-sm">
                   <Spinner className="size-4" />
-                  Preparing secure checkout...
+                  Almost ready...
                 </div>
               )}
 
@@ -346,7 +410,7 @@ export default function RechargeConfirmationModal(props: RechargeConfirmationMod
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
                   <Spinner className="size-4" />
-                  Preparing checkout...
+                  Almost ready...
                 </span>
               ) : (
                 'Recharge'

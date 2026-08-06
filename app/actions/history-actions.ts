@@ -32,7 +32,7 @@ export async function getTransactionHistory(): Promise<TransactionHistoryItem[]>
 
   const { data, error } = await supabase
     .from('transactions')
-    .select('*')
+    .select('*, meter:meters(name)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
@@ -40,7 +40,7 @@ export async function getTransactionHistory(): Promise<TransactionHistoryItem[]>
     throw new Error(error.message);
   }
 
-  return (data ?? []) as TransactionHistoryItem[];
+  return (data ?? []) as unknown as TransactionHistoryItem[];
 }
 
 export async function getTransactionHistoryDetail(transactionId: string): Promise<TransactionHistoryDetail | null> {

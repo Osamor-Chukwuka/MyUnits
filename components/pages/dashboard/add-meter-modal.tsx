@@ -145,14 +145,14 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
   if (!isOpen) return null;
 
   return (
-    <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/50 p-4">
-      <Card className="bg-card border border-border w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#102A2A]/55 p-4 backdrop-blur-sm sm:items-center">
+      <Card className="no-scrollbar my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto border-white/45 bg-[#fff9ef]/92 shadow-[0_30px_100px_rgba(16,42,42,0.28)]">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-border border-b">
           <h2 className="font-bold text-foreground text-2xl">Add New Meter</h2>
           <button
             onClick={onClose}
-            className="hover:bg-secondary p-1 rounded-lg transition-colors"
+            className="rounded-xl p-2 transition-colors hover:bg-secondary"
             aria-label="Close modal"
           >
             <X className="w-5 h-5 text-muted-foreground" />
@@ -173,7 +173,7 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
               value={formData.name}
               onChange={handleInputChange}
               placeholder="e.g., Home Meter, Shop Meter"
-              className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.name ? 'border-destructive' : 'border-border'
+              className={`min-h-11 w-full rounded-xl border bg-white/45 px-4 py-2 text-foreground placeholder-muted-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.name ? 'border-destructive' : 'border-border'
                 }`}
             />
             {errors.name && <p className="mt-1 text-destructive text-sm">{errors.name}</p>}
@@ -191,26 +191,26 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
               value={formData.meterNumber}
               onChange={handleInputChange}
               placeholder="Enter your meter number"
-              className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.meterNumber ? 'border-destructive' : 'border-border'
+              className={`min-h-11 w-full rounded-xl border bg-white/45 px-4 py-2 text-foreground placeholder-muted-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.meterNumber ? 'border-destructive' : 'border-border'
                 }`}
             />
             {errors.meterNumber && <p className="mt-1 text-destructive text-sm">{errors.meterNumber}</p>}
           </div>
 
-          {/* Distribution Company */}
+          {/* Service area */}
           <div>
             <label htmlFor="disco" className="block mb-2 font-semibold text-foreground text-sm">
-              Distribution Company
+              Service area
             </label>
             <select
               id="disco"
               name="disco"
               value={formData.disco}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 rounded-lg border transition-colors bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.disco ? 'border-destructive' : 'border-border'
+              className={`min-h-11 w-full rounded-xl border bg-white/45 px-4 py-2 text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${errors.disco ? 'border-destructive' : 'border-border'
                 }`}
             >
-              <option value="">Select a distribution company</option>
+              <option value="">Select your service area</option>
               {discos.map((option) => (
                 <option key={option.serviceID} value={option.serviceID}>
                   {option.name}
@@ -232,8 +232,8 @@ export default function AddMeterModal({ isOpen, onClose, refreshMeterList }: Add
                   key={type}
                   className={`cursor-pointer rounded-lg border px-4 py-3 text-sm font-medium text-center transition-all
                     ${formData.meterType === type
-                      ? "border-red-600 ring-2 ring-red-600/30 bg-red-50 text-red-700"
-                      : "border-border hover:border-red-400"
+                      ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_rgba(16,42,42,0.16)]"
+                      : "border-border bg-white/35 hover:border-primary/40"
                     }`}
                 >
                   <input
