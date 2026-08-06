@@ -1,6 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
+import { getAppUrl } from '@/lib/get-app-url';
 import { getCurrentUser } from './auth-actions';
 import {
   getMeterTokenEmailSubject,
@@ -62,6 +63,7 @@ export async function sendMeterTokenEmailAction(
     };
   }
 
+  const appUrl = input.appUrl ?? (await getAppUrl());
   const emailProps: MeterTokenEmailProps = {
     firstName,
     meterName: input.meterName,
@@ -71,7 +73,7 @@ export async function sendMeterTokenEmailAction(
     amount: input.amount,
     charges: input.charges,
     transactionDate: input.transactionDate,
-    appUrl: input.appUrl ?? process.env.APP_URL ?? null,
+    appUrl,
     supportEmail: input.supportEmail ?? process.env.SUPPORT_EMAIL ?? null,
   };
 
